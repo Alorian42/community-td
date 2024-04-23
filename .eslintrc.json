@@ -26,6 +26,7 @@
 		"class-methods-use-this": "off",
 		"max-classes-per-file": "off",
 		"@typescript-eslint/ban-types": "off",
-		"@typescript-eslint/no-var-requires": "off"
+		"@typescript-eslint/no-var-requires": "off",
+		"@typescript-eslint/no-extraneous-class": "off"
 	}
 }
