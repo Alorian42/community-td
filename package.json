@@ -1,37 +1,49 @@
 {
-  "name": "template-ts-vite",
-  "version": "1.1.0",
-  "description": "Excalibur TypeScript template for Vite",
-  "main": "index.js",
-  "scripts": {
-    "dev": "vite",
-    "start": "vite",
-    "build": "tsc && vite build",
-    "serve": "vite preview",
-    "test": "npm run build && ex-test -d ./dist -t ./test/test.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/excaliburjs/template-ts-vite.git"
-  },
-  "keywords": [
-    "excalibur",
-    "excaliburjs",
-    "vite",
-    "game-engine"
-  ],
-  "author": "Erik Onarheim",
-  "license": "BSD-2-Clause",
-  "bugs": {
-    "url": "https://github.com/excaliburjs/template-ts-vite/issues"
-  },
-  "homepage": "https://github.com/excaliburjs/template-ts-vite#readme",
-  "devDependencies": {
-    "excalibur": "0.29.2",
-    "typescript": "5.4.5",
-    "vite": "5.2.10"
-  },
-  "dependencies": {
-    "@excaliburjs/testing": "^0.25.0"
-  }
+	"name": "community-td",
+	"version": "0.0.1",
+	"description": "Community TD",
+	"main": "index.js",
+	"scripts": {
+		"dev": "vite",
+		"start": "vite",
+		"build": "tsc && vite build",
+		"serve": "vite preview",
+		"test": "npm run build && ex-test -d ./dist -t ./test/test.ts"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Alorian42/community-td.git"
+	},
+	"keywords": [
+		"excalibur",
+		"excaliburjs",
+		"vite",
+		"game-engine"
+	],
+	"author": "Erik Onarheim",
+	"license": "BSD-2-Clause",
+	"bugs": {
+		"url": "https://github.com/Alorian42/community-td/issues"
+	},
+	"homepage": "https://github.com/Alorian42/community-td#readme",
+	"devDependencies": {
+		"eslint": "^8.57.0",
+		"eslint-config-airbnb-base": "^15.0.0",
+		"eslint-config-airbnb-typescript": "^17.1.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-config-standard-with-typescript": "^43.0.1",
+		"eslint-plugin-import": "^2.29.1",
+		"eslint-plugin-n": "^16.6.2",
+		"eslint-plugin-prettier": "^4.2.1",
+		"eslint-plugin-promise": "^6.1.1",
+		"eslint-plugin-vue": "^9.25.0",
+		"excalibur": "0.29.2",
+		"prettier-eslint": "^16.3.0",
+		"typescript": "^5.4.5",
+		"vite": "5.2.10"
+	},
+	"dependencies": {
+		"@excaliburjs/testing": "^0.25.0",
+		"prettier": "^2.8.8"
+	}
 }
