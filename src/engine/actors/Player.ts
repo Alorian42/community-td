@@ -5,7 +5,7 @@ export default class Player extends Actor {
 	constructor() {
 		super('Sword', 150, 150, 100, 100);
 
-		this.speed = 100;
+		this.speed = 200;
 	}
 
 	public onInitialize(engine: Game): void {

@@ -34,11 +34,12 @@ export default class Resources {
 	 */
 	public loadResources(): Loader {
 		if (this.loader === null) {
-			this.loader = new Loader();
-
-			Object.values(this.resources).forEach(res => {
-				this.loader?.addResource(res);
-			});
+			this.loader = new Loader(Object.values(this.resources));
+			this.loader.logoWidth = 128;
+			this.loader.logoHeight = 128;
+			this.loader.backgroundColor = ResourcesConfig.config.colors.defaultBackground;
+			this.loader.logo = this.resources.Logo.path;
+			this.loader.playButtonText = 'Play';
 		}
 
 		return this.loader;

@@ -26,15 +26,21 @@ export default class Game extends Engine {
 		this.player = new Player();
 		this.enemies = [enemy];
 
+		this.add(scene.getName(), scene);
 		scene.add(this.player);
 		scene.add(enemy);
-		this.add(scene.getName(), scene);
 
-		this.goToScene(scene.getName()).catch(error => {
-			console.error('Error loading scene:', error);
+		loader.on('afterload', () => {
+			this.input.pointers.clear();
+			this.goToScene(scene.getName()).catch(error => {
+				console.error('Error loading scene:', error);
+			});
+			this.initMovement();
 		});
 
-		this.initMovement();
+		this.canvas.addEventListener('contextmenu', e => {
+			e.preventDefault();
+		});
 
 		this.start(loader).catch(error => {
 			console.error('Error loading game resources:', error);
@@ -42,15 +48,12 @@ export default class Game extends Engine {
 	}
 
 	public initMovement(): void {
-		this.canvas.addEventListener('contextmenu', e => {
-			e.preventDefault();
-		});
-
 		this.input.pointers.primary.on('down', event => {
 			if (event.button === PointerButton.Right) {
 				if (this.player === null) {
 					return;
 				}
+
 				const targetPos = this.screenToWorldCoordinates(event.screenPos);
 
 				this.player.moveTo(targetPos.x, targetPos.y);
