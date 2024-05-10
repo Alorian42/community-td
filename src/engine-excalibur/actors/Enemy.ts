@@ -3,10 +3,13 @@ import type Game from '../Game';
 import Actor from './Actor';
 
 export default class Enemy extends Actor {
-	constructor() {
-		super('Enemy', 300, 300, 100, 100, 50);
+	constructor(x: number, y: number) {
+		super('Enemy', x, y, 100, 100, {
+			showName: true,
+			showHealth: true,
+		});
 
-		this.unit = new Unit('Enemy', 50);
+		this.unit = new Unit('Enemy', 50, { x, y });
 
 		this.initLabels();
 	}

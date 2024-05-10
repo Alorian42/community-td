@@ -1,7 +1,13 @@
 import { Color, Actor as ExActor, Font, Label, vec, Vector } from 'excalibur';
 import type Game from '../Game';
 import type Unit from '../../engine-shared/unit/Unit';
+import { UnitEvents } from '../../engine-shared/unit/Unit';
 // import { Resources } from './resources';
+
+interface LabelsConfig {
+	showName?: boolean;
+	showHealth?: boolean;
+}
 
 export default class Actor extends ExActor {
 	protected readonly spriteName: string;
@@ -10,8 +16,16 @@ export default class Actor extends ExActor {
 	protected unit!: Unit;
 	protected nameLabel?: Label;
 	protected healthLabel?: Label;
+	protected labelsConfig: LabelsConfig = {};
 
-	constructor(spriteName: string, posX: number, posY: number, width: number, height: number, health: number) {
+	constructor(
+		spriteName: string,
+		posX: number,
+		posY: number,
+		width: number,
+		height: number,
+		labelsConfig: LabelsConfig = {}
+	) {
 		super({
 			pos: vec(posX, posY),
 			width,
@@ -19,29 +33,40 @@ export default class Actor extends ExActor {
 		});
 
 		this.spriteName = spriteName;
+		this.labelsConfig = labelsConfig;
 	}
 
 	protected initLabels(): void {
-		this.nameLabel = new Label({
-			text: this.getName(),
-			pos: this.pos.add(new Vector(-25, -50)),
-			color: Color.White,
-			font: new Font({
-				size: 14,
-				family: 'Arial',
-				bold: true,
-			}),
-		});
+		if (this.labelsConfig.showName) {
+			this.nameLabel = new Label({
+				text: this.getName(),
+				pos: this.pos.add(new Vector(-25, -50)),
+				color: Color.White,
+				font: new Font({
+					size: 14,
+					family: 'Arial',
+					bold: true,
+				}),
+			});
+		}
 
-		this.healthLabel = new Label({
-			text: `${this.getCurrentHealth()} / ${this.getMaxHealth()}`,
-			pos: this.pos.add(new Vector(-25, 50)),
-			color: Color.White,
-			font: new Font({
-				size: 12,
-				family: 'Arial',
-			}),
-		});
+		if (this.labelsConfig.showHealth) {
+			this.healthLabel = new Label({
+				text: `${this.getCurrentHealth()} / ${this.getMaxHealth()}`,
+				pos: this.pos.add(new Vector(-25, 50)),
+				color: Color.White,
+				font: new Font({
+					size: 12,
+					family: 'Arial',
+				}),
+			});
+
+			this.unit.on(UnitEvents.HEALTH_CHANGE, () => {
+				if (this.healthLabel) {
+					this.healthLabel.text = `${this.getCurrentHealth()} / ${this.getMaxHealth()}`;
+				}
+			});
+		}
 	}
 
 	public onInitialize(engine: Game): void {
@@ -98,5 +123,9 @@ export default class Actor extends ExActor {
 		}
 
 		return labels;
+	}
+
+	public getUnit(): Unit {
+		return this.unit;
 	}
 }

@@ -1,13 +1,16 @@
-import Hero from '../../engine-shared/unit/Unit';
+import Hero from '../../engine-shared/unit/Hero';
 import type Game from '../Game';
 import Actor from './Actor';
 
 export default class Player extends Actor {
-	constructor() {
-		super('Sword', 150, 150, 100, 100, 100);
+	constructor(x: number, y: number) {
+		super('Sword', x, y, 100, 100, {
+			showName: true,
+			showHealth: false,
+		});
 
 		this.speed = 200;
-		this.unit = new Hero('Sword', 100);
+		this.unit = new Hero('Sword', x, y);
 
 		this.initLabels();
 	}
