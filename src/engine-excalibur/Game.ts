@@ -1,4 +1,4 @@
-import { Engine, Color, PointerButton, type Sprite, Vector, type Scene } from 'excalibur';
+import { Engine, Color, PointerButton, type Sprite, Vector, type Scene, Keys } from 'excalibur';
 import Player from './actors/Player';
 import Resources from './Resources';
 import Enemy from './actors/Enemy';
@@ -20,6 +20,11 @@ export default class Game extends Engine {
 	private readonly mainEngine: MainEngine;
 
 	private buildMode: boolean = false;
+
+	private readonly cameraMovement: { x: number; y: number } = { x: 0, y: 0 };
+	private manualCameraMovement: boolean = false;
+
+	private targetPos?: Vector;
 
 	constructor() {
 		super({ width: 800, height: 600 });
@@ -88,11 +93,59 @@ export default class Game extends Engine {
 				if (event.key === 'Escape') {
 					this.buildMode = false;
 				}
+
+				if (event.key === Keys.ArrowUp) {
+					this.manualCameraMovement = true;
+					this.cameraMovement.y = -2;
+				} else if (event.key === Keys.ArrowDown) {
+					this.manualCameraMovement = true;
+					this.cameraMovement.y = 2;
+				} else if (event.key === Keys.ArrowLeft) {
+					this.manualCameraMovement = true;
+					this.cameraMovement.x = -2;
+				} else if (event.key === Keys.ArrowRight) {
+					this.manualCameraMovement = true;
+					this.cameraMovement.x = 2;
+				}
+			});
+
+			this.input.keyboard.on('release', event => {
+				if (event.key === Keys.ArrowUp || event.key === Keys.ArrowDown) {
+					this.cameraMovement.y = 0;
+
+					this.manualCameraMovement = this.cameraMovement.x !== 0;
+				} else if (event.key === Keys.ArrowLeft || event.key === Keys.ArrowRight) {
+					this.cameraMovement.x = 0;
+
+					this.manualCameraMovement = this.cameraMovement.y !== 0;
+				}
+			});
+
+			this.input.pointers.primary.on('move', event => {
+				if (this.manualCameraMovement) {
+					return;
+				}
+
+				if (event.pagePos.x <= 40) {
+					this.cameraMovement.x = -2;
+				} else if (event.pagePos.x >= 780) {
+					this.cameraMovement.x = 2;
+				} else {
+					this.cameraMovement.x = 0;
+				}
+
+				if (event.pagePos.y <= 40) {
+					this.cameraMovement.y = -2;
+				} else if (event.pagePos.y >= 580) {
+					this.cameraMovement.y = 2;
+				} else {
+					this.cameraMovement.y = 0;
+				}
 			});
 
 			this.onPreDraw = () => {
 				if (this.buildMode) {
-					const targetPos = this.screenToWorldCoordinates(this.input.pointers.primary.lastPagePos);
+					const targetPos = this.input.pointers.primary.lastPagePos;
 
 					this.graphicsContext.drawRectangle(
 						targetPos.add(new Vector(-50, -50)),
@@ -100,6 +153,40 @@ export default class Game extends Engine {
 						100,
 						this.canBuild() ? Color.Green : Color.Red
 					);
+				}
+
+				if (this.targetPos !== undefined && this.player !== null) {
+					const playerPosScreen = this.worldToScreenCoordinates(this.player.pos);
+					const targetPosScreen = this.worldToScreenCoordinates(this.targetPos);
+
+					this.graphicsContext.drawLine(playerPosScreen, targetPosScreen, Color.Green, 1);
+					this.graphicsContext.drawCircle(targetPosScreen, 5, Color.Green);
+				}
+			};
+
+			this.onPreUpdate = () => {
+				if (this.currentScene.camera.pos.x < -500 && this.cameraMovement.x < 0) {
+					this.cameraMovement.x = 0;
+				}
+
+				if (this.currentScene.camera.pos.x > 800 && this.cameraMovement.x > 0) {
+					this.cameraMovement.x = 0;
+				}
+
+				if (this.currentScene.camera.pos.y < -500 && this.cameraMovement.y < 0) {
+					this.cameraMovement.y = 0;
+				}
+
+				if (this.currentScene.camera.pos.y > 800 && this.cameraMovement.y > 0) {
+					this.cameraMovement.y = 0;
+				}
+
+				if (this.cameraMovement.x !== 0) {
+					this.currentScene.camera.pos.x += this.cameraMovement.x;
+				}
+
+				if (this.cameraMovement.y !== 0) {
+					this.currentScene.camera.pos.y += this.cameraMovement.y;
 				}
 			};
 
@@ -132,6 +219,7 @@ export default class Game extends Engine {
 				const targetPos = this.screenToWorldCoordinates(event.screenPos);
 
 				this.player.moveTo(targetPos.x, targetPos.y);
+				this.targetPos = targetPos;
 
 				event.nativeEvent.preventDefault();
 			} else if (event.button === PointerButton.Left) {
@@ -159,5 +247,9 @@ export default class Game extends Engine {
 		const towers = SceneController.getActorsOfType<Tower>(this.currentScene, Tower);
 
 		return towers.every(tower => tower.pos.distance(targetPos) >= 100);
+	}
+
+	public clearTargetPos(): void {
+		this.targetPos = undefined;
 	}
 }

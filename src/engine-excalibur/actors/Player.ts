@@ -18,4 +18,13 @@ export default class Player extends Actor {
 	public onInitialize(engine: Game): void {
 		super.onInitialize(engine);
 	}
+
+	public update(engine: Game, delta: number): void {
+		const shouldCheckTargetPos = !!this.targetPos;
+		super.update(engine, delta);
+
+		if (shouldCheckTargetPos && !this.targetPos) {
+			engine.clearTargetPos();
+		}
+	}
 }
