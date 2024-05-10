@@ -2,6 +2,8 @@ import { ScreenElement } from 'excalibur';
 import type Game from '../Game';
 
 export default class BuildButton extends ScreenElement {
+	public onBuildModeEnter: () => void = () => {};
+
 	constructor() {
 		super({
 			x: 50,
@@ -14,7 +16,7 @@ export default class BuildButton extends ScreenElement {
 		this.graphics.add('hover', engine.getSprite('BuildButton'));
 		this.graphics.show('idle');
 		this.on('pointerup', () => {
-			alert("I've been clicked");
+			this.onBuildModeEnter();
 		});
 		this.on('pointerenter', () => {
 			this.graphics.show('hover');

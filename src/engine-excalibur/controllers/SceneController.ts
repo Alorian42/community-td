@@ -15,4 +15,8 @@ export default class SceneController {
 			scene.remove(label);
 		});
 	}
+
+	public static getActorsOfType<T extends Actor>(scene: Scene, type: new (...args: any[]) => T): T[] {
+		return scene.actors.filter(actor => actor instanceof type) as T[];
+	}
 }

@@ -19,6 +19,8 @@ export default class Game extends Engine {
 	private readonly enemies: Enemy[] = [];
 	private readonly mainEngine: MainEngine;
 
+	private buildMode: boolean = false;
+
 	constructor() {
 		super({ width: 800, height: 600 });
 
@@ -47,8 +49,8 @@ export default class Game extends Engine {
 		return enemy;
 	}
 
-	protected createTower(scene: Scene): Tower {
-		const tower = new Tower(450, 300);
+	protected createTower(scene: Scene, x: number, y: number): Tower {
+		const tower = new Tower(x, y);
 
 		this.mainEngine.registerTower(tower.getUnit());
 		SceneController.registerActor(scene, tower);
@@ -59,6 +61,10 @@ export default class Game extends Engine {
 	protected createBuildButton(scene: Scene): void {
 		const button = new BuildButton();
 
+		button.onBuildModeEnter = () => {
+			this.buildMode = true;
+		};
+
 		scene.add(button);
 	}
 
@@ -67,7 +73,6 @@ export default class Game extends Engine {
 		const scene = new MainScene();
 		this.player = new Player(100, 100);
 		this.createEnemy(scene);
-		this.createTower(scene);
 
 		this.add(scene.getName(), scene);
 		SceneController.registerActor(scene, this.player);
@@ -79,8 +84,23 @@ export default class Game extends Engine {
 			});
 			this.initMovement();
 
+			this.input.keyboard.on('press', event => {
+				if (event.key === 'Escape') {
+					this.buildMode = false;
+				}
+			});
+
 			this.onPreDraw = () => {
-				this.graphicsContext.drawCircle(new Vector(450, 300), 200, Color.Transparent, Color.Red, 2);
+				if (this.buildMode) {
+					const targetPos = this.screenToWorldCoordinates(this.input.pointers.primary.lastPagePos);
+
+					this.graphicsContext.drawRectangle(
+						targetPos.add(new Vector(-50, -50)),
+						100,
+						100,
+						this.canBuild() ? Color.Green : Color.Red
+					);
+				}
 			};
 
 			this.createBuildButton(scene);
@@ -104,11 +124,22 @@ export default class Game extends Engine {
 					return;
 				}
 
+				if (this.buildMode) {
+					this.buildMode = false;
+					return;
+				}
+
 				const targetPos = this.screenToWorldCoordinates(event.screenPos);
 
 				this.player.moveTo(targetPos.x, targetPos.y);
 
 				event.nativeEvent.preventDefault();
+			} else if (event.button === PointerButton.Left) {
+				if (this.buildMode && this.canBuild()) {
+					const targetPos = this.screenToWorldCoordinates(event.screenPos);
+
+					this.createTower(this.currentScene, targetPos.x, targetPos.y);
+				}
 			}
 		});
 	}
@@ -121,5 +152,12 @@ export default class Game extends Engine {
 		}
 
 		return resources[name].toSprite();
+	}
+
+	private canBuild(): boolean {
+		const targetPos = this.screenToWorldCoordinates(this.input.pointers.primary.lastPagePos);
+		const towers = SceneController.getActorsOfType<Tower>(this.currentScene, Tower);
+
+		return towers.every(tower => tower.pos.distance(targetPos) >= 100);
 	}
 }
