@@ -5,9 +5,17 @@ export interface Vector2D {
 
 export default class VectorUtils {
 	public static isInRange(baseVector: Vector2D, targetVector: Vector2D, range: number): boolean {
-		const dx = baseVector.x - targetVector.x;
-		const dy = baseVector.y - targetVector.y;
+		const distance = VectorUtils.distance(baseVector, targetVector);
 
-		return dx * dx + dy * dy <= range * range;
+		return distance <= range;
+	}
+
+	public static distance(baseVector: Vector2D, targetVector: Vector2D): number {
+		const x = targetVector.x - baseVector.x;
+		const y = targetVector.y - baseVector.y;
+
+		console.log(`x: ${x}, y: ${y}, distance: ${Math.sqrt(x * x + y * y)}`);
+
+		return Math.sqrt(x * x + y * y);
 	}
 }

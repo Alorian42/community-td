@@ -81,6 +81,8 @@ export default class Actor extends ExActor {
 	public update(engine: Game, delta: number): void {
 		super.update(engine, delta);
 
+		this.unit.pos = this.pos;
+
 		if (this.targetPos !== null) {
 			const distance = this.targetPos.distance(this.pos);
 			if (distance < (this.speed * delta) / 1000) {

@@ -9,6 +9,7 @@ export default class Enemy extends Actor {
 			showHealth: true,
 		});
 
+		this.speed = 200;
 		this.unit = new Unit('Enemy', 50, { x, y });
 
 		this.initLabels();

@@ -8,4 +8,11 @@ export default class SceneController {
 			scene.add(label);
 		});
 	}
+
+	public static unregisterActor(scene: Scene, actor: Actor): void {
+		scene.remove(actor);
+		actor.getLabels().forEach(label => {
+			scene.remove(label);
+		});
+	}
 }
