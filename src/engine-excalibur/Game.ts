@@ -3,6 +3,7 @@ import Player from './actors/Player';
 import Resources from './Resources';
 import Enemy from './actors/Enemy';
 import MainScene from './scenes/Main';
+import SceneController from './controllers/SceneController';
 
 export default class Game extends Engine {
 	/**
@@ -27,8 +28,8 @@ export default class Game extends Engine {
 		this.enemies = [enemy];
 
 		this.add(scene.getName(), scene);
-		scene.add(this.player);
-		scene.add(enemy);
+		SceneController.registerActor(scene, this.player);
+		SceneController.registerActor(scene, enemy);
 
 		loader.on('afterload', () => {
 			this.input.pointers.clear();

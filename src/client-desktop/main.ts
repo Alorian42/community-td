@@ -1,4 +1,4 @@
-import Game from '../engine/Game';
+import Game from '../engine-excalibur/Game';
 
 const game = new Game();
 
