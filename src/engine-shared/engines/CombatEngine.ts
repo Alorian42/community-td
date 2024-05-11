@@ -1,5 +1,6 @@
 import type Tower from '../tower/Tower';
 import type Unit from '../unit/Unit';
+import { UnitEvents } from '../unit/Unit';
 import VectorUtils from '../utils/VectorUtils';
 import Engine from './Engine';
 
@@ -52,6 +53,10 @@ export default class CombatEngine extends Engine {
 
 	public registerTower(tower: Tower): void {
 		this.towers.push(tower);
+
+		tower.on(UnitEvents.ATTACK_LANDED, (target: Unit) => {
+			this.dealDamage(tower, target);
+		});
 	}
 
 	public registerEnemy(enemy: Unit): void {
@@ -59,11 +64,17 @@ export default class CombatEngine extends Engine {
 	}
 
 	protected doAttack(tower: Tower, enemy: Unit): void {
+		tower.startAttack(enemy);
+	}
+
+	protected dealDamage(tower: Tower, enemy: Unit): void {
 		const damage = tower.rollDamage();
 
-		enemy.takeDamage(damage);
+		const isDead = enemy.takeDamage(damage);
 
-		tower.afterAttack();
+		if (isDead) {
+			tower.clearTarget();
+		}
 
 		console.log(`${tower.getName()} attacked ${enemy.name} for ${damage} damage`);
 		console.log(`${enemy.name} has ${enemy.currentHealth} health left`);

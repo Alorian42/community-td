@@ -22,7 +22,7 @@ export default class Game extends Engine {
 	private buildMode: boolean = false;
 
 	private readonly cameraMovement: { x: number; y: number } = { x: 0, y: 0 };
-	private manualCameraMovement: boolean = false;
+	private manualCameraMovement: boolean = true;
 
 	private targetPos?: Vector;
 

@@ -14,8 +14,6 @@ export default class VectorUtils {
 		const x = targetVector.x - baseVector.x;
 		const y = targetVector.y - baseVector.y;
 
-		console.log(`x: ${x}, y: ${y}, distance: ${Math.sqrt(x * x + y * y)}`);
-
 		return Math.sqrt(x * x + y * y);
 	}
 }
