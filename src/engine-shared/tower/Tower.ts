@@ -16,6 +16,10 @@ export default abstract class Tower extends Unit {
 
 	protected target?: Unit;
 
+	public static foodCost: number = 0;
+	public static goldCost: number = 0;
+	public static woodCost: number = 0;
+
 	constructor(name: string, x: number, y: number, properties: TowerProperties) {
 		super(name, 100, { x, y });
 		this.properties = properties;
@@ -69,5 +73,17 @@ export default abstract class Tower extends Unit {
 
 	public clearParticlesTarget(): void {
 		this.publish(UnitEvents.CLEAR_PARTICLES_TARGET);
+	}
+
+	public getFoodCost(): number {
+		return (this.constructor as typeof Tower).foodCost;
+	}
+
+	public getGoldCost(): number {
+		return (this.constructor as typeof Tower).goldCost;
+	}
+
+	public getWoodCost(): number {
+		return (this.constructor as typeof Tower).woodCost;
 	}
 }

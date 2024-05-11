@@ -1,7 +1,11 @@
-export default abstract class Engine {
+import EventSystem from '../utils/EventSystem';
+
+export default abstract class Engine extends EventSystem {
 	public name: string;
 
 	constructor(name: string) {
+		super();
+
 		this.name = name;
 	}
 

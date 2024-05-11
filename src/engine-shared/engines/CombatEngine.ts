@@ -27,7 +27,6 @@ export default class CombatEngine extends Engine {
 			return;
 		}
 
-		// console.log('Combat Engine loop');
 		this.getActiveTowers().forEach(tower => {
 			const enemiesInRange = this.getEnemiesInRange(tower);
 
@@ -75,8 +74,5 @@ export default class CombatEngine extends Engine {
 		if (isDead) {
 			tower.clearTarget();
 		}
-
-		console.log(`${tower.getName()} attacked ${enemy.name} for ${damage} damage`);
-		console.log(`${enemy.name} has ${enemy.currentHealth} health left`);
 	}
 }

@@ -8,6 +8,9 @@ import Tower from './actors/Tower';
 import MainEngine from '../engine-shared/engines/MainEngine';
 import { UnitEvents } from '../engine-shared/unit/Unit';
 import BuildButton from './ui/BuildButton';
+import ResourcesText from './ui/ResourcesText';
+import BasicTower from '../engine-shared/tower/BasicTower';
+import TowerUtils from '../engine-shared/utils/TowerUtils';
 
 export default class Game extends Engine {
 	/**
@@ -26,6 +29,8 @@ export default class Game extends Engine {
 
 	private targetPos?: Vector;
 
+	private resourcesText: ResourcesText | null = null;
+
 	constructor() {
 		super({ width: 800, height: 600 });
 
@@ -39,6 +44,7 @@ export default class Game extends Engine {
 		enemy.getUnit().on(UnitEvents.DEATH, () => {
 			this.enemies.splice(this.enemies.indexOf(enemy), 1);
 			SceneController.unregisterActor(scene, enemy);
+			this.mainEngine.awardResources(enemy.getUnit());
 
 			window.setTimeout(() => {
 				this.createEnemy(scene);
@@ -67,7 +73,11 @@ export default class Game extends Engine {
 		const button = new BuildButton();
 
 		button.onBuildModeEnter = () => {
-			this.buildMode = true;
+			if (TowerUtils.canBuildTowerByClass(this.mainEngine.getCurrentResources(), BasicTower)) {
+				this.buildMode = true;
+			} else {
+				alert('Not enough resources to build a tower');
+			}
 		};
 
 		scene.add(button);
@@ -76,10 +86,12 @@ export default class Game extends Engine {
 	public initialize(): void {
 		const loader = this.resources.loadResources();
 		const scene = new MainScene();
+		this.resourcesText = new ResourcesText(300, 10);
 		this.player = new Player(100, 100);
 		this.createEnemy(scene);
 
 		this.add(scene.getName(), scene);
+		scene.add(this.resourcesText);
 		SceneController.registerActor(scene, this.player);
 
 		loader.on('afterload', () => {
@@ -193,6 +205,8 @@ export default class Game extends Engine {
 			this.createBuildButton(scene);
 
 			this.mainEngine.start();
+
+			this.mainEngine.awardResources();
 		});
 
 		this.canvas.addEventListener('contextmenu', e => {
@@ -201,6 +215,11 @@ export default class Game extends Engine {
 
 		this.start(loader).catch(error => {
 			console.error('Error loading game resources:', error);
+		});
+
+		this.mainEngine.subscribeToResourceAward(({ delta, total }) => {
+			console.log('Resources awarded', delta, total);
+			this.resourcesText?.updateResources(total);
 		});
 	}
 
@@ -226,7 +245,13 @@ export default class Game extends Engine {
 				if (this.buildMode && this.canBuild()) {
 					const targetPos = this.screenToWorldCoordinates(event.screenPos);
 
-					this.createTower(this.currentScene, targetPos.x, targetPos.y);
+					if (TowerUtils.canBuildTowerByClass(this.mainEngine.getCurrentResources(), BasicTower)) {
+						this.createTower(this.currentScene, targetPos.x, targetPos.y);
+					}
+
+					if (!TowerUtils.canBuildTowerByClass(this.mainEngine.getCurrentResources(), BasicTower)) {
+						this.buildMode = false;
+					}
 				}
 			}
 		});

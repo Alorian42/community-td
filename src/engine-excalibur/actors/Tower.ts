@@ -27,8 +27,6 @@ export default class Tower extends Actor {
 		this.unit.on(UnitEvents.ATTACK, () => {
 			const target = this.unit.getTarget();
 
-			console.log('Tower attacked', target);
-
 			if (target) {
 				const particle = new TowerParticle(this.pos.x, this.pos.y, target);
 				particle.moveTo(target.pos.x, target.pos.y);
@@ -39,8 +37,6 @@ export default class Tower extends Actor {
 				particle.getParticle().on(
 					ParticleEvents.FINISHED,
 					() => {
-						console.log(particle.id, 'Particle finished');
-
 						const possibleTarget = particle.getTarget();
 
 						if (possibleTarget) {
@@ -76,5 +72,9 @@ export default class Tower extends Actor {
 
 	public getUnit(): TowerClass {
 		return this.unit;
+	}
+
+	public getFoodCost(): number {
+		return this.unit.getFoodCost();
 	}
 }

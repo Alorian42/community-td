@@ -2,6 +2,7 @@ import type Tower from '../tower/Tower';
 import type Unit from '../unit/Unit';
 import CombatEngine from './CombatEngine';
 import Engine from './Engine';
+import ResourcesEngine, { type IResources } from './ResourcesEngine';
 
 export default class MainEngine extends Engine {
 	protected engines: Engine[] = [];
@@ -11,6 +12,7 @@ export default class MainEngine extends Engine {
 		super('MainEngine');
 
 		this.engines.push(new CombatEngine());
+		this.engines.push(new ResourcesEngine());
 	}
 
 	public start(): void {
@@ -36,13 +38,32 @@ export default class MainEngine extends Engine {
 
 	public registerTower(tower: Tower): void {
 		this.getCombatEngine().registerTower(tower);
+		this.getResourcesEngine().awardResources(tower);
 	}
 
 	public registerEnemy(enemy: Unit): void {
 		this.getCombatEngine().registerEnemy(enemy);
 	}
 
+	public awardResources(unit?: Unit): void {
+		this.getResourcesEngine().awardResources(unit);
+	}
+
+	public subscribeToResourceAward(
+		callback: ({ delta, total }: { delta: IResources; total: IResources }) => void
+	): void {
+		this.getResourcesEngine().on('resourceAwarded', callback);
+	}
+
+	public getCurrentResources(): IResources {
+		return this.getResourcesEngine().getCurrentResources();
+	}
+
 	protected getCombatEngine(): CombatEngine {
 		return this.engines.find(engine => engine.name === 'CombatEngine') as CombatEngine;
+	}
+
+	protected getResourcesEngine(): ResourcesEngine {
+		return this.engines.find(engine => engine.name === 'ResourcesEngine') as ResourcesEngine;
 	}
 }
