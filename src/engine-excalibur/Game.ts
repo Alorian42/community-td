@@ -76,7 +76,7 @@ export default class Game extends Engine {
 			if (TowerUtils.canBuildTowerByClass(this.mainEngine.getCurrentResources(), BasicTower)) {
 				this.buildMode = true;
 			} else {
-				alert('Not enough resources to build a tower');
+				console.log('Not enough resources to build a tower');
 			}
 		};
 
