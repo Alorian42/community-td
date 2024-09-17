@@ -25,6 +25,7 @@ export default abstract class Entity {
 
 	public create(): void {
 		this.mixer = new AnimationMixer(this.mesh);
+		this.mixer.clipAction(this.animation.idle).play();
 	}
 	public getMesh(): Mesh {
 		if (!this.created) {
@@ -87,6 +88,7 @@ export default abstract class Entity {
 	private playMoveAnimation(): void {
 		if (this.animation.move && this.mixer) {
 			console.log('Playing move animation');
+			this.mixer.clipAction(this.animation.idle).stop();
 			this.mixer.clipAction(this.animation.move).play();
 		}
 	}
@@ -95,6 +97,7 @@ export default abstract class Entity {
 		if (this.animation.move && this.mixer) {
 			console.log('Stopping move animation');
 			this.mixer.clipAction(this.animation.move).stop();
+			this.mixer.clipAction(this.animation.idle).play();
 		}
 	}
 }

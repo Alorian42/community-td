@@ -11,8 +11,13 @@ export default class Player extends Entity {
 		mesh.scale.set(5, 5, 5);
 		mesh.position.set(this.x, 1, this.y);
 
+		console.log(model.animations);
+
 		this.animation.move = model.animations.find((a: any) => a.name === 'Running_A');
 		this.animation.move.loop = LoopRepeat;
+
+		this.animation.idle = model.animations.find((a: any) => a.name === 'Idle');
+		this.animation.idle.loop = LoopRepeat;
 
 		this.mesh = mesh;
 		this.speed = 1;
