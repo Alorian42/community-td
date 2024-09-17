@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import Game from './engine/Game';
-import RenderEngine from './engine/RenderEngine';
+import Game from './class/engine/Game';
+import RenderEngine from './class/engine/RenderEngine';
+import EntityEngine from './class/engine/EntityEngine';
 
 const game = new Game();
 
-game.addEngine(new RenderEngine());
+game.addEngine(new EntityEngine(), 'entityEngine');
+game.addEngine(new RenderEngine(), 'renderEngine');
 
 onMounted(() => {
 	game.start();

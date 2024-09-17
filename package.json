@@ -15,7 +15,9 @@
   "dependencies": {
     "@types/three": "^0.167.2",
     "pinia": "^2.1.7",
+    "reflect-metadata": "^0.2.2",
     "three": "^0.167.1",
+    "tsyringe": "^4.8.0",
     "vue": "^3.4.29"
   },
   "devDependencies": {

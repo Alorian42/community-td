@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import Engine from './Engine';
+import type Entity from '../entity/Entity';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -25,6 +26,8 @@ export default class RenderEngine extends Engine {
 		this.init();
 
 		document.querySelector('.wrapper')?.appendChild(this.renderer.domElement);
+
+		console.log('Render Engine started');
 	}
 
 	public init(): void {
@@ -56,7 +59,6 @@ export default class RenderEngine extends Engine {
 		this.directionalLight.castShadow = true;
 		this.scene.add(this.directionalLight);
 
-		this.renderEntities();
 		this.renderer.setAnimationLoop((time: DOMHighResTimeStamp) => this.animate(time));
 		window.addEventListener('resize', () => this.onResize());
 		window.addEventListener('wheel', (event: WheelEvent) => this.onZoom(event));
@@ -66,28 +68,8 @@ export default class RenderEngine extends Engine {
 		});
 	}
 
-	public renderEntities(): void {
-		// Cube
-		const cubeGeometry = new THREE.BoxGeometry(10, 10, 10);
-		const cubeMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
-		const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-		cube.position.set(20, 5, 0);
-		this.scene.add(cube);
-
-		// Sphere
-		const sphereGeometry = new THREE.SphereGeometry(5, 32, 32);
-		const sphereMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
-		const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-		sphere.position.set(-20, 5, 0);
-		this.scene.add(sphere);
-
-		// Cylinder
-		const cylinderGeometry = new THREE.CylinderGeometry(5, 5, 20, 32);
-		const cylinderMaterial = new THREE.MeshLambertMaterial({ color: 0x0000ff });
-		const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
-		cylinder.position.set(0, 0, 0);
-		cylinder.rotation.x = Math.PI / 2;
-		this.scene.add(cylinder);
+	public renderEntity(entity: Entity): void {
+		this.scene.add(entity.getMesh());
 	}
 
 	private animate(time: DOMHighResTimeStamp): void {
