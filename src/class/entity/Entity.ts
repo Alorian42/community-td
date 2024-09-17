@@ -1,17 +1,12 @@
-import type { Mesh } from 'three';
+import { type Mesh, AnimationMixer, Vector3 } from 'three';
 
 export default abstract class Entity {
+	protected mixer: AnimationMixer | null = null;
+	protected animation: Record<string, any> = {};
 	protected mesh!: Mesh;
 	protected created: boolean = false;
 	protected speed = 0;
 	protected currentSpeed: {
-		x: number;
-		y: number;
-	} = {
-		x: 0,
-		y: 0
-	};
-	protected currentPosition: {
 		x: number;
 		y: number;
 	} = {
@@ -28,10 +23,13 @@ export default abstract class Entity {
 
 	constructor(protected x: number, protected y: number) {}
 
-	public abstract create(): void;
+	public create(): void {
+		this.mixer = new AnimationMixer(this.mesh);
+	}
 	public getMesh(): Mesh {
 		if (!this.created) {
 			this.create();
+			
 		}
 
 		return this.mesh;
@@ -41,26 +39,62 @@ export default abstract class Entity {
 		this.targetPosition.x = x;
 		this.targetPosition.y = y;
 
-		const distance = Math.sqrt((x - this.currentPosition.x) * (x - this.currentPosition.x) + (y - this.currentPosition.y) * (y - this.currentPosition.y));
+		const distance = Math.sqrt((x - this.x) * (x - this.x) + (y - this.y) * (y - this.y));
 		const time = distance / this.speed;
-		const speedX = (x - this.currentPosition.x) / time;
-		const speedY = (y - this.currentPosition.y) / time;
+		const speedX = (x - this.x) / time;
+		const speedY = (y - this.y) / time;
+
+		const direction = new Vector3();
+		direction.subVectors(
+			new Vector3(x, 0, y),
+			new Vector3(this.x, 0, this.y)
+		); // Vector from current to target
+		direction.normalize(); // Normalize the vector to get just the direction\
+		const angle = Math.atan2(direction.x, direction.z);
+
+		this.mesh.rotation.y = angle;
 		
 		this.currentSpeed.x = speedX;
 		this.currentSpeed.y = speedY;
+
+		this.playMoveAnimation();
 	}
 
 	public move(factor: number): void {
-		this.currentPosition.x += this.currentSpeed.x * factor;
-		this.currentPosition.y += this.currentSpeed.y * factor;
+		if (this.currentSpeed.x === 0 && this.currentSpeed.y === 0) {
+			return;
+		}
 
-		this.mesh.position.set(this.currentPosition.x, 0, this.currentPosition.y);
+		this.x += this.currentSpeed.x * factor;
+		this.y += this.currentSpeed.y * factor;
 
-		console.log(`Moving to ${this.currentPosition.x} (${this.targetPosition.x}), ${this.currentPosition.y} (${this.targetPosition.y})`);
+		this.mesh.position.set(this.x, 0, this.y);
 
-		if (Math.abs(this.currentPosition.x - this.targetPosition.x) < 1 && Math.abs(this.currentPosition.y - this.targetPosition.y) < 1) {
+		if (Math.abs(this.x - this.targetPosition.x) < 1 && Math.abs(this.y - this.targetPosition.y) < 1) {
 			this.currentSpeed.x = 0;
 			this.currentSpeed.y = 0;
+
+			this.stopMoveAnimation();
+		}
+	}
+
+	public updateAnimation(delta: number): void {
+		if (this.mixer) {
+			this.mixer.update(delta);
+		}
+	}
+
+	private playMoveAnimation(): void {
+		if (this.animation.move && this.mixer) {
+			console.log('Playing move animation');
+			this.mixer.clipAction(this.animation.move).play();
+		}
+	}
+
+	private stopMoveAnimation(): void {
+		if (this.animation.move && this.mixer) {
+			console.log('Stopping move animation');
+			this.mixer.clipAction(this.animation.move).stop();
 		}
 	}
 }

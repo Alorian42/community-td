@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import Engine from './Engine';
 import type Entity from '../entity/Entity';
 import type EntityEngine from './EntityEngine';
+// @ts-ignore
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -10,6 +12,8 @@ const frustumSize = 100;
 const cameraMoveSpeed = 0.5;
 
 export default class RenderEngine extends Engine {
+	protected static readonly DEFAULT_POSITION = new THREE.Spherical(8, Math.PI / 4, Math.PI / 3);
+	private spherical = RenderEngine.DEFAULT_POSITION.clone();
 	private scene!: THREE.Scene;
 	private camera!: THREE.OrthographicCamera;
 	private renderer!: THREE.WebGLRenderer;
@@ -27,11 +31,20 @@ export default class RenderEngine extends Engine {
 
 	private entityEngine!: EntityEngine;
 
+	private readyCallbacks: (() => void)[] = [];
+
+	private models: Record<string, any> = {};
+
+	private raycaster = new THREE.Raycaster();
+
+	private clock = new THREE.Clock();
+
 	public override start(): void {
 		this.entityEngine = this.container.resolve('entityEngine');
 
+		this.loadModels();
 		this.init();
-
+	
 		document.querySelector('.wrapper')?.appendChild(this.renderer.domElement);
 
 		console.log('Render Engine started');
@@ -50,8 +63,10 @@ export default class RenderEngine extends Engine {
 
 		this.scene.background = new THREE.Color(0x666666);
 
-		this.camera.position.set(0, 25, 0); // Position above and to the side
-		this.camera.lookAt(new THREE.Vector3(0, 0, 0)); // Look at the scene's center
+		// Position above and to the side
+		//this.camera.position.set(0, 5, 0);
+		this.camera.position.setFromSpherical(this.spherical);
+		this.camera.lookAt(new THREE.Vector3(0,  0, 0)); // Look at the scene's center
 		this.camera.zoom = 1; // Increase for closer view, decrease for a more zoomed-out view
 		this.camera.updateProjectionMatrix();
 
@@ -74,16 +89,33 @@ export default class RenderEngine extends Engine {
 		this.renderer.domElement.addEventListener('contextmenu', (event) => {
 			event.preventDefault();
 		
+			// Get normalized device coordinates (NDC) from the mouse position
 			const mouse = new THREE.Vector2(
 				(event.clientX / window.innerWidth) * 2 - 1,  // X in NDC
 				-(event.clientY / window.innerHeight) * 2 + 1 // Y in NDC
 			);
 		
-			const vector = new THREE.Vector3(mouse.x, mouse.y, 0);
-			vector.unproject(this.camera);
+			// Create a raycaster for projecting from camera to the scene
+			this.raycaster.setFromCamera(mouse, this.camera);
 		
-			this.entityEngine.movePlayer(vector.x, vector.z);
-		});		
+			// Define a plane at y = 0 (XZ plane)
+			const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0); // Up vector (0,1,0), at Y = 0
+		
+			// Get the intersection point of the ray and the plane
+			const intersectionPoint = new THREE.Vector3();
+			const intersects = this.raycaster.ray.intersectPlane(plane, intersectionPoint);
+				
+			// Check if the intersection is valid (not null and no NaN values)
+			if (intersects && !isNaN(intersectionPoint.x) && !isNaN(intersectionPoint.z)) {
+				console.log(intersectionPoint.x, intersectionPoint.z); // Log valid coordinates
+
+				// Move player to the calculated position
+				this.entityEngine.movePlayer(intersectionPoint.x, intersectionPoint.z);
+			} else {
+				// Handle the case where no valid intersection occurs (e.g., parallel ray)
+				console.warn("No valid intersection or ray is parallel to the XZ plane.");
+			}
+		});
 
 		this.renderer.domElement.addEventListener('mouseleave', () => {
 			this.resetCameraMove();
@@ -100,7 +132,26 @@ export default class RenderEngine extends Engine {
 		this.scene.add(entity.getMesh());
 	}
 
+	public onReady(callback: () => void): void {
+		this.readyCallbacks.push(callback);
+	}
+
+	private async loadModels(): Promise<void> {
+		const loader = new GLTFLoader();
+		this.models.player = await loader.loadAsync('src/assets/models/Skeleton Rogue.glb');
+
+		console.log(this.models.player.animations);
+
+		this.readyCallbacks.forEach(callback => callback());
+	}
+
 	private animate(time: DOMHighResTimeStamp): void {
+		const delta = this.clock.getDelta();
+
+		this.entityEngine.getEntities().forEach(entity => {
+			entity.updateAnimation(delta);
+		});
+
 		this.updateCamera();
 		this.renderer.render(this.scene, this.camera);
 	}
@@ -184,5 +235,9 @@ export default class RenderEngine extends Engine {
 	private resumeCameraMove(): void {
 		this.isCameraMoveSuspended = false;
 		this.resetCameraMove();
+	}
+
+	public getModel(name: string): any {
+		return this.models[name];
 	}
 }

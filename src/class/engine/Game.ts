@@ -36,7 +36,9 @@ export default class Game {
 
 		console.log('Game Engine started');
 
-		this.init();
+		this.renderEngine.onReady(() => {
+			this.init();
+		});
 	}
 
 	public init(): void {
