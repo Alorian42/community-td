@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import Engine from './Engine';
 import type Entity from '../entity/Entity';
+import type EntityEngine from './EntityEngine';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -22,7 +23,13 @@ export default class RenderEngine extends Engine {
 		right: false
 	};
 
+	private isCameraMoveSuspended = false;
+
+	private entityEngine!: EntityEngine;
+
 	public override start(): void {
+		this.entityEngine = this.container.resolve('entityEngine');
+
 		this.init();
 
 		document.querySelector('.wrapper')?.appendChild(this.renderer.domElement);
@@ -63,8 +70,29 @@ export default class RenderEngine extends Engine {
 		window.addEventListener('resize', () => this.onResize());
 		window.addEventListener('wheel', (event: WheelEvent) => this.onZoom(event));
 		window.addEventListener('mousemove', (event: MouseEvent) => this.onMouseMove(event));
+		
+		this.renderer.domElement.addEventListener('contextmenu', (event) => {
+			event.preventDefault();
+		
+			const mouse = new THREE.Vector2(
+				(event.clientX / window.innerWidth) * 2 - 1,  // X in NDC
+				-(event.clientY / window.innerHeight) * 2 + 1 // Y in NDC
+			);
+		
+			const vector = new THREE.Vector3(mouse.x, mouse.y, 0);
+			vector.unproject(this.camera);
+		
+			this.entityEngine.movePlayer(vector.x, vector.z);
+		});		
+
 		this.renderer.domElement.addEventListener('mouseleave', () => {
 			this.resetCameraMove();
+		});
+		document.querySelector('.ui')?.addEventListener('mouseenter', () => {
+			this.suspendCameraMove();
+		});
+		document.querySelector('.ui')?.addEventListener('mouseleave', () => {
+			this.resumeCameraMove();
 		});
 	}
 
@@ -121,6 +149,10 @@ export default class RenderEngine extends Engine {
 	}
 
 	private updateCamera(): void {
+		if (this.isCameraMoveSuspended) {
+			return;
+		}
+
 		if (this.cameraMove.forward) {
 			this.camera.translateY(cameraMoveSpeed);
 		}
@@ -143,5 +175,14 @@ export default class RenderEngine extends Engine {
 		this.cameraMove.backward = false;
 		this.cameraMove.left = false;
 		this.cameraMove.right = false;
+	}
+
+	private suspendCameraMove(): void {
+		this.isCameraMoveSuspended = true;
+	}
+
+	private resumeCameraMove(): void {
+		this.isCameraMoveSuspended = false;
+		this.resetCameraMove();
 	}
 }

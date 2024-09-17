@@ -10,6 +10,7 @@ export default class Player extends Entity {
 		cylinder.rotation.x = Math.PI / 2;
 
 		this.mesh = cylinder;
+		this.speed = 1;
 		this.created = true;
 	}
 }
