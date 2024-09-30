@@ -1,31 +1,35 @@
 <script setup lang="ts">
-import type EntityEngine from '@/class/engine/EntityEngine';
-import Enemy from '@/class/entity/Enemy';
-import { container } from 'tsyringe';
+import type EntityEngine from "@/class/engine/EntityEngine";
+import Enemy from "@/class/entity/Enemy";
+import { container } from "tsyringe";
 
-const entityEngine = container.resolve('entityEngine') as EntityEngine;
+const entityEngine = container.resolve("entityEngine") as EntityEngine;
 
-const randomXY = () => {
-	return {
-		x: Math.floor(Math.random() * 100) - 5,
-		y: Math.floor(Math.random() * 100) - 5,
-	};
+const randomXY = (maxX: number, maxY: number) => {
+  return {
+    x: Math.floor(Math.random() * maxX) - 5,
+    y: Math.floor(Math.random() * maxY) - 5,
+  };
 };
 
 const spawn = () => {
-	const { x, y } = randomXY();
-	entityEngine.spawnEntity(new Enemy(x, y));
+  const { x, y } = randomXY(15, 15);
+  const enemy = new Enemy(x, y);
+  entityEngine.spawnEntity(enemy);
+
+  const { x: x2, y: y2 } = randomXY(100, 100);
+  enemy.startMove(x2, y2);
 };
 </script>
 <template>
-	<button @click="spawn">Spawn Enemy</button>
+  <button @click="spawn">Spawn Enemy</button>
 </template>
 <style scoped>
 button {
-	position: absolute;
-	top: 10px;
-	left: 10px;
-	padding: 10px;
-	z-index: 100;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 10px;
+  z-index: 100;
 }
 </style>

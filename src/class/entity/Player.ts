@@ -1,17 +1,16 @@
 import Entity from "./Entity";
 import { container } from "tsyringe";
 import { LoopRepeat } from "three";
+import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 
 export default class Player extends Entity {
 	public override create(): void {
 		const renderEngine = container.resolve('renderEngine') as any;
 		const model = renderEngine.getModel('player');
-		const mesh = model.scene;
+		const mesh = clone(model.scene) as any;
 
 		mesh.scale.set(5, 5, 5);
 		mesh.position.set(this.x, 0, this.y);
-
-		console.log(model.animations);
 
 		this.animation.move = model.animations.find((a: any) => a.name === 'Running_A');
 		this.animation.move.loop = LoopRepeat;

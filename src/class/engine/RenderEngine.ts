@@ -137,7 +137,7 @@ export default class RenderEngine extends Engine {
 	}
 
 	public renderEntity(entity: Entity): void {
-		this.scene.add(entity.getMesh());
+		this.renderMesh(entity.getMesh());
 	}
 
 	public renderMesh(mesh: THREE.Mesh): void {
@@ -152,6 +152,7 @@ export default class RenderEngine extends Engine {
 		const loader = new GLTFLoader();
 		const modelsToLoad = {
 			player: 'src/assets/models/Skeleton Rogue.glb',
+			enemy: 'src/assets/models/Skeleton Minion.glb',
 			bft1: 'src/assets/models/Floor Dirt Small.glb',
 			gravestone1: 'src/assets/models/Gravestone.glb',
 			grave1: 'src/assets/models/Grave-1.glb',

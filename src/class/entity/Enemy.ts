@@ -1,14 +1,27 @@
-import * as THREE from "three";
+import { container } from "tsyringe";
 import Entity from "./Entity";
+import { LoopRepeat } from "three";
+import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 export default class Enemy extends Entity {
 	public override create(): void {
-		const sphereGeometry = new THREE.SphereGeometry(5, 32, 32);
-		const sphereMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
-		const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-		sphere.position.set(this.x, 1, this.y);
+		const renderEngine = container.resolve('renderEngine') as any;
+		const model = renderEngine.getModel('enemy');
+		const mesh = clone(model.scene) as any;
 
-		this.mesh = sphere;
+		mesh.scale.set(5, 5, 5);
+		mesh.position.set(this.x, 0, this.y);
+
+		this.animation.move = model.animations.find((a: any) => a.name === 'Running_A');
+		this.animation.move.loop = LoopRepeat;
+
+		this.animation.idle = model.animations.find((a: any) => a.name === 'Idle_Combat');
+		this.animation.idle.loop = LoopRepeat;
+
+		this.mesh = mesh;
+		this.speed = 1;
 		this.created = true;
+
+		super.create();
 	}
 }
