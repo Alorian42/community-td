@@ -1,6 +1,7 @@
 import { type Mesh, AnimationMixer, Vector3 } from 'three';
+import { EventSystem } from '../utils/EventSystem';
 
-export default abstract class Entity {
+export default abstract class Entity extends EventSystem {
 	protected mixer: AnimationMixer | null = null;
 	protected animation: Record<string, any> = {};
 	protected mesh!: Mesh;
@@ -21,11 +22,31 @@ export default abstract class Entity {
 		y: 0
 	};
 
-	constructor(protected x: number, protected y: number) {}
+	constructor(protected x: number, protected y: number) {
+		super();
+	}
 
 	public create(): void {
 		this.mixer = new AnimationMixer(this.mesh);
 		this.mixer.clipAction(this.animation.idle).play();
+
+		this.emit('create');
+	}
+	public destroy(): void {
+		this.mesh.geometry?.dispose();
+
+		if (this.mesh.material) {
+			if (Array.isArray(this.mesh.material)) {
+				this.mesh.material.forEach(material => material.dispose());
+			} else {
+				this.mesh.material.dispose();
+			}
+		}
+
+		this.mixer?.stopAllAction();
+		this.mesh.removeFromParent();
+
+		this.emit('destroy');
 	}
 	public getMesh(): Mesh {
 		if (!this.created) {
@@ -59,6 +80,7 @@ export default abstract class Entity {
 		this.currentSpeed.y = speedY;
 
 		this.playMoveAnimation();
+		this.emit('startMove');
 	}
 
 	public move(factor: number): void {
@@ -76,6 +98,7 @@ export default abstract class Entity {
 			this.currentSpeed.y = 0;
 
 			this.stopMoveAnimation();
+			this.emit('stopMove');
 		}
 	}
 

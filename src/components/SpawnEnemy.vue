@@ -19,6 +19,14 @@ const spawn = () => {
 
   const { x: x2, y: y2 } = randomXY(100, 100);
   enemy.startMove(x2, y2);
+
+  enemy.on(
+    "stopMove",
+    () => {
+      entityEngine.removeEntity(enemy);
+    },
+    true
+  );
 };
 </script>
 <template>

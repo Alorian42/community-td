@@ -37,8 +37,6 @@ export default class RenderEngine extends Engine {
 
 	private entityEngine!: EntityEngine;
 
-	private readyCallbacks: (() => void)[] = [];
-
 	private models: Record<string, any> = {};
 
 	private raycaster = new THREE.Raycaster();
@@ -145,7 +143,7 @@ export default class RenderEngine extends Engine {
 	}
 
 	public onReady(callback: () => void): void {
-		this.readyCallbacks.push(callback);
+		this.on('ready', callback);
 	}
 
 	private async loadModels(): Promise<void> {
@@ -163,7 +161,7 @@ export default class RenderEngine extends Engine {
 		Promise.allSettled(Object.entries(modelsToLoad).map(async ([name, path]) => {
 			this.models[name] = await loader.loadAsync(path);
 		})).then(() => {
-			this.readyCallbacks.forEach(callback => callback());
+			this.emit('ready');
 		});
 	}
 

@@ -18,6 +18,16 @@ export default class EntityEngine extends Engine {
 		entity.create();
 	}
 
+	public removeEntity(entity: Entity): void {
+		const index = this.entities.indexOf(entity);
+
+		if (index > -1) {
+			this.entities.splice(index, 1);
+		}
+
+		entity.destroy();
+	}
+
 	public getEntities(): Entity[] {
 		return this.entities;
 	}
