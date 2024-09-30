@@ -12,7 +12,7 @@ const frustumSize = 100;
 const cameraMoveSpeed = 0.5;
 
 export default class RenderEngine extends Engine {
-	protected static readonly DEFAULT_POSITION = new THREE.Spherical(8, Math.PI / 4, Math.PI / 3);
+	protected static readonly DEFAULT_POSITION = new THREE.Spherical(1000, Math.PI / 4, Math.PI / 3);
 	private spherical = RenderEngine.DEFAULT_POSITION.clone();
 	private scene!: THREE.Scene;
 	private camera!: THREE.OrthographicCamera;
@@ -57,8 +57,8 @@ export default class RenderEngine extends Engine {
 			(frustumSize * aspect) / 2,
 			frustumSize / 2,
 			-frustumSize / 2,
-			0.1,
-			1000
+			0.01,
+			2000
 		);
 
 		this.scene.background = new THREE.Color(0x666666);
