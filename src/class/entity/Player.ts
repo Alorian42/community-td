@@ -9,7 +9,7 @@ export default class Player extends Entity {
 		const mesh = model.scene;
 
 		mesh.scale.set(5, 5, 5);
-		mesh.position.set(this.x, 1, this.y);
+		mesh.position.set(this.x, 0, this.y);
 
 		console.log(model.animations);
 

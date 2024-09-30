@@ -36,6 +36,8 @@ export default class SimulatorEngine extends Engine {
 
 		this.moveEntities(factor);
 
+		//console.log(`real fps: ${1000 / deltaTime}`);
+
 		// console.log(`Simulator loop: factor=${factor}`);
 	}
 

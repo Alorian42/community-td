@@ -19,6 +19,12 @@ export default class RenderEngine extends Engine {
 	private renderer!: THREE.WebGLRenderer;
 	private ambientLight!: THREE.AmbientLight;
 	private directionalLight!: THREE.DirectionalLight;
+	private sceneBorders = {
+		minX: -50,
+		maxX: 50,
+		minY: -50,
+		maxY: 50
+	};
 
 	private cameraMove = {
 		forward: false,
@@ -109,8 +115,10 @@ export default class RenderEngine extends Engine {
 			if (intersects && !isNaN(intersectionPoint.x) && !isNaN(intersectionPoint.z)) {
 				console.log(intersectionPoint.x, intersectionPoint.z); // Log valid coordinates
 
-				// Move player to the calculated position
-				this.entityEngine.movePlayer(intersectionPoint.x, intersectionPoint.z);
+				if (this.isInSceneBorders(intersectionPoint.x, intersectionPoint.z)) {
+					// Move player to the calculated position
+					this.entityEngine.movePlayer(intersectionPoint.x, intersectionPoint.z);
+				}
 			} else {
 				// Handle the case where no valid intersection occurs (e.g., parallel ray)
 				console.warn("No valid intersection or ray is parallel to the XZ plane.");
@@ -132,17 +140,30 @@ export default class RenderEngine extends Engine {
 		this.scene.add(entity.getMesh());
 	}
 
+	public renderMesh(mesh: THREE.Mesh): void {
+		this.scene.add(mesh);
+	}
+
 	public onReady(callback: () => void): void {
 		this.readyCallbacks.push(callback);
 	}
 
 	private async loadModels(): Promise<void> {
 		const loader = new GLTFLoader();
-		this.models.player = await loader.loadAsync('src/assets/models/Skeleton Rogue.glb');
+		const modelsToLoad = {
+			player: 'src/assets/models/Skeleton Rogue.glb',
+			bft1: 'src/assets/models/Floor Dirt Small.glb',
+			gravestone1: 'src/assets/models/Gravestone.glb',
+			grave1: 'src/assets/models/Grave-1.glb',
+			tree1: 'src/assets/models/Dead tree.glb',
+		};
 
-		console.log(this.models.player.animations);
-
-		this.readyCallbacks.forEach(callback => callback());
+		// Load all models
+		Promise.allSettled(Object.entries(modelsToLoad).map(async ([name, path]) => {
+			this.models[name] = await loader.loadAsync(path);
+		})).then(() => {
+			this.readyCallbacks.forEach(callback => callback());
+		});
 	}
 
 	private animate(time: DOMHighResTimeStamp): void {
@@ -239,5 +260,13 @@ export default class RenderEngine extends Engine {
 
 	public getModel(name: string): any {
 		return this.models[name];
+	}
+
+	public getSceneBorders(): Record<string, number> {
+		return this.sceneBorders;
+	}
+
+	public isInSceneBorders(x: number, y: number): boolean {
+		return x >= this.sceneBorders.minX && x <= this.sceneBorders.maxX && y >= this.sceneBorders.minY && y <= this.sceneBorders.maxY;
 	}
 }
