@@ -14,6 +14,8 @@ export default class PlayerRenderer extends EntityRenderer<Player> {
 		super.create();
 	}
 
+	public override addLifeBar(): void {}
+
 	public static fromXY(x: number, y: number): PlayerRenderer {
 		const enemy = new Player(x, y);
 		const unit = new Unit();

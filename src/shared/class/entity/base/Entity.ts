@@ -19,7 +19,8 @@ export default abstract class Entity extends EventSystem {
 		x: 0,
 		y: 0,
 	};
-	protected maxLife: number = 0;
+	protected maxLife: number = 1;
+	protected currentLife: number = 1;
 
 	constructor(
 		protected x: number,
@@ -97,5 +98,24 @@ export default abstract class Entity extends EventSystem {
 
 	public spawned(): void {
 		this.emit('spawn');
+	}
+
+	public isAlive(): boolean {
+		return this.currentLife > 0;
+	}
+
+	public lifePercentage(): number {
+		return Math.floor((this.currentLife / this.maxLife) * 100);
+	}
+
+	public damageReceived(damage: number): void {
+		this.currentLife -= damage;
+
+		if (this.currentLife <= 0) {
+			this.currentLife = 0;
+			this.destroy();
+		}
+
+		this.emit('damageReceived', this.lifePercentage());
 	}
 }

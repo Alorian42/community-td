@@ -136,7 +136,9 @@ export default class RenderEngine extends Engine {
 	}
 
 	public renderEntity(entity: EntityRenderer): void {
-		this.renderMesh(entity.getUnit().getMesh());
+		const unit = entity.getUnit().getMesh();
+
+		this.renderMesh(unit);
 	}
 
 	public renderMesh(mesh: THREE.Object3D): void {
@@ -176,6 +178,13 @@ export default class RenderEngine extends Engine {
 		});
 
 		this.updateCamera();
+
+		this.scene.traverse((object: THREE.Object3D) => {
+			if (object.userData.isHPBar) {
+				object.quaternion.copy(this.camera.quaternion);
+			}
+		});
+
 		this.renderer.render(this.scene, this.camera);
 	}
 
