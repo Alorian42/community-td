@@ -1,38 +1,19 @@
-import { type Mesh, AnimationMixer, Vector3 } from 'three';
-import { EventSystem } from '../utils/EventSystem';
+import { AnimationMixer, Vector3, type Mesh } from "three";
+import Entity from "./Entity";
 
-export default abstract class Entity extends EventSystem {
+export default abstract class Unit extends Entity {
 	protected mixer: AnimationMixer | null = null;
 	protected animation: Record<string, any> = {};
 	protected mesh!: Mesh;
-	protected created: boolean = false;
-	protected speed = 0;
-	protected currentSpeed: {
-		x: number;
-		y: number;
-	} = {
-		x: 0,
-		y: 0
-	};
-	protected targetPosition: {
-		x: number;
-		y: number;
-	} = {
-		x: 0,
-		y: 0
-	};
 
-	constructor(protected x: number, protected y: number) {
-		super();
-	}
-
-	public create(): void {
+	public override create(): void {
 		this.mixer = new AnimationMixer(this.mesh);
 		this.mixer.clipAction(this.animation.idle).play();
 
-		this.emit('create');
+		super.create();
 	}
-	public destroy(): void {
+
+	public override destroy(): void {
 		this.mesh.geometry?.dispose();
 
 		if (this.mesh.material) {
@@ -46,8 +27,9 @@ export default abstract class Entity extends EventSystem {
 		this.mixer?.stopAllAction();
 		this.mesh.removeFromParent();
 
-		this.emit('destroy');
+		super.destroy();
 	}
+	
 	public getMesh(): Mesh {
 		if (!this.created) {
 			this.create();
@@ -57,14 +39,8 @@ export default abstract class Entity extends EventSystem {
 		return this.mesh;
 	}
 
-	public startMove(x: number, y: number): void {
-		this.targetPosition.x = x;
-		this.targetPosition.y = y;
-
-		const distance = Math.sqrt((x - this.x) * (x - this.x) + (y - this.y) * (y - this.y));
-		const time = distance / this.speed;
-		const speedX = (x - this.x) / time;
-		const speedY = (y - this.y) / time;
+	public override startMove(x: number, y: number): void {
+		super.startMove(x, y);
 
 		const direction = new Vector3();
 		direction.subVectors(
@@ -75,30 +51,17 @@ export default abstract class Entity extends EventSystem {
 		const angle = Math.atan2(direction.x, direction.z);
 
 		this.mesh.rotation.y = angle;
-		
-		this.currentSpeed.x = speedX;
-		this.currentSpeed.y = speedY;
 
 		this.playMoveAnimation();
-		this.emit('startMove');
 	}
 
-	public move(factor: number): void {
-		if (this.currentSpeed.x === 0 && this.currentSpeed.y === 0) {
-			return;
-		}
-
-		this.x += this.currentSpeed.x * factor;
-		this.y += this.currentSpeed.y * factor;
+	public override move(factor: number): void {
+		super.move(factor);
 
 		this.mesh.position.set(this.x, 0, this.y);
 
-		if (Math.abs(this.x - this.targetPosition.x) < 1 && Math.abs(this.y - this.targetPosition.y) < 1) {
-			this.currentSpeed.x = 0;
-			this.currentSpeed.y = 0;
-
+		if (this.closeToTarget()) {
 			this.stopMoveAnimation();
-			this.emit('stopMove');
 		}
 	}
 

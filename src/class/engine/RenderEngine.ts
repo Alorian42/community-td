@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import Engine from './Engine';
-import type Entity from '../entity/Entity';
 import type EntityEngine from './EntityEngine';
 // @ts-ignore
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader';
+import type Unit from '../entity/base/Unit';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -134,7 +134,7 @@ export default class RenderEngine extends Engine {
 		});
 	}
 
-	public renderEntity(entity: Entity): void {
+	public renderEntity(entity: Unit): void {
 		this.renderMesh(entity.getMesh());
 	}
 
@@ -169,7 +169,7 @@ export default class RenderEngine extends Engine {
 		const delta = this.clock.getDelta();
 
 		this.entityEngine.getEntities().forEach(entity => {
-			entity.updateAnimation(delta);
+			(entity as Unit).updateAnimation(delta);
 		});
 
 		this.updateCamera();

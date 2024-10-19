@@ -1,4 +1,4 @@
-import type Entity from "../entity/Entity";
+import type Entity from "../entity/base/Entity";
 import Engine from "./Engine";
 import type RenderEngine from "./RenderEngine";
 import Player from "../entity/Player";

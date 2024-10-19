@@ -1,9 +1,9 @@
-import Entity from "./Entity";
 import { container } from "tsyringe";
 import { LoopRepeat } from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
+import Unit from "./base/Unit";
 
-export default class Player extends Entity {
+export default class Player extends Unit {
 	public override create(): void {
 		const renderEngine = container.resolve('renderEngine') as any;
 		const model = renderEngine.getModel('player');
