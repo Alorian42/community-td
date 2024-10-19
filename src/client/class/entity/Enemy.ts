@@ -1,25 +1,16 @@
-import { container } from "tsyringe";
-import { LoopRepeat } from "three";
-import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
-import EntityRenderer from "./base/EntityRenderer";
-import Enemy from "@/shared/class/entity/Enemy";
-import Unit from "./base/Unit";
+import EntityRenderer from './base/EntityRenderer';
+import Enemy from '@/shared/class/entity/Enemy';
+import Unit from './base/Unit';
 
 export default class EnemyRenderer extends EntityRenderer<Enemy> {
 	public override create(): void {
-		const renderEngine = container.resolve('renderEngine') as any;
-		const model = renderEngine.getModel('enemy');
-		const mesh = clone(model.scene) as any;
-		const position = this.entity.getPosition();
+		const animations = new Map<string, string>();
 
-		mesh.scale.set(5, 5, 5);
-		mesh.position.set(position.x, 0, position.y);
+		animations.set('move', 'Running_A');
+		animations.set('idle', 'Idle_Combat');
 
-		this.unit.setAnimation('move', model.animations.find((a: any) => a.name === 'Running_A'), LoopRepeat);
-		this.unit.setAnimation('idle', model.animations.find((a: any) => a.name === 'Idle_Combat'), LoopRepeat);
+		this.init('enemy', 5, animations);
 
-		this.unit.setMesh(mesh);
-	
 		super.create();
 	}
 
