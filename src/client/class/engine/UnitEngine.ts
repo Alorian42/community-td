@@ -9,7 +9,7 @@ export default class UnitEngine extends EntityEngine {
 	constructor() {
 		super();
 
-		this.handleCreateOrDestroy = false;
+		this.handleCreate = false;
 	}
 
 	public override start(): void {
@@ -22,6 +22,10 @@ export default class UnitEngine extends EntityEngine {
 	public spawnUnit(entity: EntityRenderer): void {
 		this.addUnit(entity);
 		this.spawnEntity(entity.getEntity());
+
+		entity.getEntity().on('destroy', () => {
+			this.removeUnit(entity);
+		});
 
 		this.renderEngine.renderEntity(entity);
 	}
@@ -39,7 +43,7 @@ export default class UnitEngine extends EntityEngine {
 			this.units.splice(index, 1);
 		}
 
-		entity.destroy();
+		entity.getUnit().destroy();
 	}
 
 	public getUnits(): EntityRenderer[] {

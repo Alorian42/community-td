@@ -34,4 +34,16 @@ export abstract class EventSystem {
 			callback(...args);
 		});
 	}
+
+	protected emitAsync(event: string, ...args: any[]): void {
+		if (!this.subscriptions[event]) {
+			return;
+		}
+
+		this.subscriptions[event].forEach(callback => {
+			setTimeout(() => {
+				callback(...args);
+			}, 0);
+		});
+	}
 }

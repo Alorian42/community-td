@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import map from '@shared/assets/maps/map0.json';
 import Engine from '@shared/class/engine/Engine';
 import type RenderEngine from './RenderEngine';
+import MapUtils from '@/shared/class/utils/Map';
 
 export default class BackgroundEngine extends Engine {
 	private renderEngine!: RenderEngine;
@@ -17,12 +18,12 @@ export default class BackgroundEngine extends Engine {
 	}
 
 	public initBackground(): void {
-		const tileSize = 1000;
-		const scale = tileSize / 2;
-		const { floor, objects } = map;
+		const tileSize = map.tileSize;
+		const scale = (tileSize / 2) * 100;
+		const { floorGrid, objects } = map;
 		const instances = new Map<string, THREE.Vector3[]>();
 
-		this.processEntries(floor, instances);
+		this.processEntries(floorGrid, instances, true);
 		this.processEntries(objects, instances);
 
 		for (const [modelName, positions] of instances) {
@@ -60,14 +61,20 @@ export default class BackgroundEngine extends Engine {
 
 	private processEntries(
 		entries: Record<string, string>,
-		instances: Map<string, THREE.Vector3[]> = new Map()
+		instances: Map<string, THREE.Vector3[]> = new Map(),
+		grid: boolean = false
 	): Map<string, THREE.Vector3[]> {
 		Object.entries(entries).forEach(([key, value]) => {
 			if (!instances.has(value)) {
 				instances.set(value, []);
 			}
 			const [x, y, z] = key.split(',').map(Number);
-			instances.get(value)?.push(new THREE.Vector3(x, y, z));
+			if (!grid) {
+				instances.get(value)?.push(new THREE.Vector3(x, y, z));
+			} else {
+				const { x: newX, y: newY } = MapUtils.fromGridToMap(x, y);
+				instances.get(value)?.push(new THREE.Vector3(newX, newY, z));
+			}
 		});
 
 		return instances;

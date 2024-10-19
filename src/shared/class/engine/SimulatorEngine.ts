@@ -35,6 +35,8 @@ export default class SimulatorEngine extends Engine {
 		const factor = deltaTime / this.defaultTickRate;
 
 		this.moveEntities(factor);
+
+		this.emitAsync('loop', factor);
 	}
 
 	private moveEntities(factor: number): void {

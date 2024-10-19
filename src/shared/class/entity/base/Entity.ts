@@ -2,6 +2,7 @@ import { EventSystem } from '@shared/class/utils/EventSystem';
 import MapUtils from '../../utils/Map';
 
 export default abstract class Entity extends EventSystem {
+	protected id: number = MapUtils.getNextId();
 	protected created: boolean = false;
 	protected speed = 0;
 	protected currentSpeed: {
@@ -88,5 +89,13 @@ export default abstract class Entity extends EventSystem {
 
 	public closeToTarget(): boolean {
 		return Math.abs(this.x - this.targetPosition.x) < 1 && Math.abs(this.y - this.targetPosition.y) < 1;
+	}
+
+	public getId(): number {
+		return this.id;
+	}
+
+	public spawned(): void {
+		this.emit('spawn');
 	}
 }
