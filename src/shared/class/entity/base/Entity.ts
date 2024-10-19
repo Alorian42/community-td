@@ -1,4 +1,4 @@
-import { EventSystem } from '../../utils/EventSystem';
+import { EventSystem } from '@shared/class/utils/EventSystem';
 
 export default abstract class Entity extends EventSystem {
 	protected created: boolean = false;
@@ -8,21 +8,26 @@ export default abstract class Entity extends EventSystem {
 		y: number;
 	} = {
 		x: 0,
-		y: 0
+		y: 0,
 	};
 	protected targetPosition: {
 		x: number;
 		y: number;
 	} = {
 		x: 0,
-		y: 0
+		y: 0,
 	};
+	protected maxLife: number = 0;
 
-	constructor(protected x: number, protected y: number) {
+	constructor(
+		protected x: number,
+		protected y: number
+	) {
 		super();
 	}
 
 	public create(): void {
+		this.created = true;
 		this.emit('create');
 	}
 	public destroy(): void {
@@ -37,11 +42,11 @@ export default abstract class Entity extends EventSystem {
 		const time = distance / this.speed;
 		const speedX = (x - this.x) / time;
 		const speedY = (y - this.y) / time;
-		
+
 		this.currentSpeed.x = speedX;
 		this.currentSpeed.y = speedY;
-		
-		this.emit('startMove');
+
+		this.emit('startMove', { x, y });
 	}
 
 	public move(factor: number): void {
@@ -58,9 +63,21 @@ export default abstract class Entity extends EventSystem {
 
 			this.emit('stopMove');
 		}
+		this.emit('move');
 	}
 
-	protected closeToTarget(): boolean {
+	public getPosition(): { x: number; y: number } {
+		return {
+			x: this.x,
+			y: this.y,
+		};
+	}
+
+	public isCreated(): boolean {
+		return this.created;
+	}
+
+	public closeToTarget(): boolean {
 		return Math.abs(this.x - this.targetPosition.x) < 1 && Math.abs(this.y - this.targetPosition.y) < 1;
 	}
 }

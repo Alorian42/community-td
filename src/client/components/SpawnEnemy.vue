@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type EntityEngine from "@/client/class/engine/EntityEngine";
 import Enemy from "@/client/class/entity/Enemy";
 import { container } from "tsyringe";
+import type UnitEngine from "../class/engine/UnitEngine";
 
-const entityEngine = container.resolve("entityEngine") as EntityEngine;
+const entityEngine = container.resolve("entityEngine") as UnitEngine;
 
 const randomXY = (maxX: number, maxY: number) => {
   return {
@@ -14,16 +14,16 @@ const randomXY = (maxX: number, maxY: number) => {
 
 const spawn = () => {
   const { x, y } = randomXY(15, 15);
-  const enemy = new Enemy(x, y);
-  entityEngine.spawnEntity(enemy);
+  const enemy = Enemy.fromXY(x, y);
+  entityEngine.spawnUnit(enemy);
 
   const { x: x2, y: y2 } = randomXY(100, 100);
-  enemy.startMove(x2, y2);
+  enemy.getEntity().startMove(x2, y2);
 
-  enemy.on(
+  enemy.getEntity().on(
     "stopMove",
     () => {
-      entityEngine.removeEntity(enemy);
+      entityEngine.removeUnit(enemy);
     },
     true
   );

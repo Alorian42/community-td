@@ -1,5 +1,5 @@
-import Engine from "./Engine";
-import type EntityEngine from "./EntityEngine";
+import Engine from '@/shared/class/engine/Engine';
+import type EntityEngine from '@/shared/class/engine/EntityEngine';
 
 export default class SimulatorEngine extends Engine {
 	private fps: number = 30;
@@ -11,7 +11,7 @@ export default class SimulatorEngine extends Engine {
 	public start(): void {
 		this.entityEngine = this.container.resolve('entityEngine');
 
-		console.log("Simulator engine started.");
+		console.log('Simulator engine started.');
 		this.startLoop();
 	}
 
@@ -35,10 +35,6 @@ export default class SimulatorEngine extends Engine {
 		const factor = deltaTime / this.defaultTickRate;
 
 		this.moveEntities(factor);
-
-		//console.log(`real fps: ${1000 / deltaTime}`);
-
-		// console.log(`Simulator loop: factor=${factor}`);
 	}
 
 	private moveEntities(factor: number): void {

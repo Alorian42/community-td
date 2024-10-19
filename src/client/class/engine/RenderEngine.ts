@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import Engine from './Engine';
-import type EntityEngine from './EntityEngine';
+import Engine from '../../../shared/class/engine/Engine';
 // @ts-ignore
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader';
-import type Unit from '../entity/base/Unit';
+import type EntityRenderer from '../entity/base/EntityRenderer';
+import type UnitEngine from './UnitEngine';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -23,19 +23,19 @@ export default class RenderEngine extends Engine {
 		minX: -50,
 		maxX: 50,
 		minY: -50,
-		maxY: 50
+		maxY: 50,
 	};
 
 	private cameraMove = {
 		forward: false,
 		backward: false,
 		left: false,
-		right: false
+		right: false,
 	};
 
 	private isCameraMoveSuspended = false;
 
-	private entityEngine!: EntityEngine;
+	private entityEngine!: UnitEngine;
 
 	private models: Record<string, any> = {};
 
@@ -48,7 +48,7 @@ export default class RenderEngine extends Engine {
 
 		this.loadModels();
 		this.init();
-	
+
 		document.querySelector('.wrapper')?.appendChild(this.renderer.domElement);
 
 		console.log('Render Engine started');
@@ -70,7 +70,7 @@ export default class RenderEngine extends Engine {
 		// Position above and to the side
 		//this.camera.position.set(0, 5, 0);
 		this.camera.position.setFromSpherical(this.spherical);
-		this.camera.lookAt(new THREE.Vector3(0,  0, 0)); // Look at the scene's center
+		this.camera.lookAt(new THREE.Vector3(0, 0, 0)); // Look at the scene's center
 		this.camera.zoom = 1; // Increase for closer view, decrease for a more zoomed-out view
 		this.camera.updateProjectionMatrix();
 
@@ -89,26 +89,26 @@ export default class RenderEngine extends Engine {
 		window.addEventListener('resize', () => this.onResize());
 		window.addEventListener('wheel', (event: WheelEvent) => this.onZoom(event));
 		window.addEventListener('mousemove', (event: MouseEvent) => this.onMouseMove(event));
-		
-		this.renderer.domElement.addEventListener('contextmenu', (event) => {
+
+		this.renderer.domElement.addEventListener('contextmenu', event => {
 			event.preventDefault();
-		
+
 			// Get normalized device coordinates (NDC) from the mouse position
 			const mouse = new THREE.Vector2(
-				(event.clientX / window.innerWidth) * 2 - 1,  // X in NDC
+				(event.clientX / window.innerWidth) * 2 - 1, // X in NDC
 				-(event.clientY / window.innerHeight) * 2 + 1 // Y in NDC
 			);
-		
+
 			// Create a raycaster for projecting from camera to the scene
 			this.raycaster.setFromCamera(mouse, this.camera);
-		
+
 			// Define a plane at y = 0 (XZ plane)
 			const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0); // Up vector (0,1,0), at Y = 0
-		
+
 			// Get the intersection point of the ray and the plane
 			const intersectionPoint = new THREE.Vector3();
 			const intersects = this.raycaster.ray.intersectPlane(plane, intersectionPoint);
-				
+
 			// Check if the intersection is valid (not null and no NaN values)
 			if (intersects && !isNaN(intersectionPoint.x) && !isNaN(intersectionPoint.z)) {
 				console.log(intersectionPoint.x, intersectionPoint.z); // Log valid coordinates
@@ -119,7 +119,7 @@ export default class RenderEngine extends Engine {
 				}
 			} else {
 				// Handle the case where no valid intersection occurs (e.g., parallel ray)
-				console.warn("No valid intersection or ray is parallel to the XZ plane.");
+				console.warn('No valid intersection or ray is parallel to the XZ plane.');
 			}
 		});
 
@@ -134,8 +134,8 @@ export default class RenderEngine extends Engine {
 		});
 	}
 
-	public renderEntity(entity: Unit): void {
-		this.renderMesh(entity.getMesh());
+	public renderEntity(entity: EntityRenderer): void {
+		this.renderMesh(entity.getUnit().getMesh());
 	}
 
 	public renderMesh(mesh: THREE.Object3D): void {
@@ -158,9 +158,11 @@ export default class RenderEngine extends Engine {
 		};
 
 		// Load all models
-		Promise.allSettled(Object.entries(modelsToLoad).map(async ([name, path]) => {
-			this.models[name] = await loader.loadAsync(path);
-		})).then(() => {
+		Promise.allSettled(
+			Object.entries(modelsToLoad).map(async ([name, path]) => {
+				this.models[name] = await loader.loadAsync(path);
+			})
+		).then(() => {
 			this.emit('ready');
 		});
 	}
@@ -168,8 +170,8 @@ export default class RenderEngine extends Engine {
 	private animate(time: DOMHighResTimeStamp): void {
 		const delta = this.clock.getDelta();
 
-		this.entityEngine.getEntities().forEach(entity => {
-			(entity as Unit).updateAnimation(delta);
+		this.entityEngine.getUnits().forEach(entityRenderer => {
+			entityRenderer.getUnit().updateAnimation(delta);
 		});
 
 		this.updateCamera();
@@ -266,6 +268,11 @@ export default class RenderEngine extends Engine {
 	}
 
 	public isInSceneBorders(x: number, y: number): boolean {
-		return x >= this.sceneBorders.minX && x <= this.sceneBorders.maxX && y >= this.sceneBorders.minY && y <= this.sceneBorders.maxY;
+		return (
+			x >= this.sceneBorders.minX &&
+			x <= this.sceneBorders.maxX &&
+			y >= this.sceneBorders.minY &&
+			y <= this.sceneBorders.maxY
+		);
 	}
 }

@@ -7,8 +7,8 @@ export abstract class EventSystem {
 		}
 
 		const nextIndex = this.subscriptions[event].length;
-		this.subscriptions[event].push(() => {
-			callback();
+		this.subscriptions[event].push((...args) => {
+			callback(...args);
 			if (oneTime) {
 				this.off(event, nextIndex);
 			}

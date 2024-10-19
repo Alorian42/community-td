@@ -1,22 +1,21 @@
-import type Entity from "../entity/base/Entity";
-import Engine from "./Engine";
-import type RenderEngine from "./RenderEngine";
-import Player from "../entity/Player";
-import type Unit from "../entity/base/Unit";
+import type Entity from '@shared/class/entity/base/Entity';
+import Engine from './Engine';
+import Player from '@shared/class/entity/Player';
 
 export default class EntityEngine extends Engine {
 	private entities: Entity[] = [];
-	private renderEngine!: RenderEngine;
-	
+	protected handleCreateOrDestroy = true;
+
 	public override start(): void {
-		this.renderEngine = this.container.resolve('renderEngine');
 		console.log('Entity Engine started');
 	}
 
 	public addEntity(entity: Entity): void {
 		this.entities.push(entity);
 
-		entity.create();
+		if (this.handleCreateOrDestroy) {
+			entity.create();
+		}
 	}
 
 	public removeEntity(entity: Entity): void {
@@ -26,7 +25,9 @@ export default class EntityEngine extends Engine {
 			this.entities.splice(index, 1);
 		}
 
-		entity.destroy();
+		if (this.handleCreateOrDestroy) {
+			entity.destroy();
+		}
 	}
 
 	public getEntities(): Entity[] {
@@ -35,7 +36,6 @@ export default class EntityEngine extends Engine {
 
 	public spawnEntity(entity: Entity): void {
 		this.addEntity(entity);
-		this.renderEngine.renderEntity(entity as Unit);
 	}
 
 	public getPlayer(): Player {

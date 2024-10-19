@@ -1,19 +1,19 @@
-import { AnimationMixer, Vector3, type Mesh } from "three";
-import Entity from "./Entity";
+import { AnimationMixer, Vector3, type Mesh, type AnimationActionLoopStyles } from "three";
 
-export default abstract class Unit extends Entity {
+export default class Unit {
+	protected created: boolean = false;
 	protected mixer: AnimationMixer | null = null;
 	protected animation: Record<string, any> = {};
 	protected mesh!: Mesh;
 
-	public override create(): void {
+	public create(): void {
 		this.mixer = new AnimationMixer(this.mesh);
 		this.mixer.clipAction(this.animation.idle).play();
 
-		super.create();
+		this.created = true;
 	}
 
-	public override destroy(): void {
+	public destroy(): void {
 		this.mesh.geometry?.dispose();
 
 		if (this.mesh.material) {
@@ -26,8 +26,6 @@ export default abstract class Unit extends Entity {
 
 		this.mixer?.stopAllAction();
 		this.mesh.removeFromParent();
-
-		super.destroy();
 	}
 	
 	public getMesh(): Mesh {
@@ -39,13 +37,11 @@ export default abstract class Unit extends Entity {
 		return this.mesh;
 	}
 
-	public override startMove(x: number, y: number): void {
-		super.startMove(x, y);
-
+	public startMove(x: number, y: number, currentX: number, currentY: number): void {
 		const direction = new Vector3();
 		direction.subVectors(
 			new Vector3(x, 0, y),
-			new Vector3(this.x, 0, this.y)
+			new Vector3(currentX, 0, currentY)
 		); // Vector from current to target
 		direction.normalize(); // Normalize the vector to get just the direction\
 		const angle = Math.atan2(direction.x, direction.z);
@@ -55,12 +51,10 @@ export default abstract class Unit extends Entity {
 		this.playMoveAnimation();
 	}
 
-	public override move(factor: number): void {
-		super.move(factor);
+	public move(x: number, y: number, closeToTarget: boolean): void {
+		this.mesh.position.set(x, 0, y);
 
-		this.mesh.position.set(this.x, 0, this.y);
-
-		if (this.closeToTarget()) {
+		if (closeToTarget) {
 			this.stopMoveAnimation();
 		}
 	}
@@ -69,6 +63,19 @@ export default abstract class Unit extends Entity {
 		if (this.mixer) {
 			this.mixer.update(delta);
 		}
+	}
+
+	public setAnimation(name: string, animation: any, loop: AnimationActionLoopStyles): void {
+		this.animation[name] = animation;
+		this.animation[name].loop = loop;
+	}
+
+	public setMesh(mesh: Mesh): void {
+		this.mesh = mesh;
+	}
+
+	public isCreated(): boolean {
+		return this.created;
 	}
 
 	private playMoveAnimation(): void {

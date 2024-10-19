@@ -1,15 +1,13 @@
-import { container } from "tsyringe";
-import type Engine from "./Engine";
-import type RenderEngine from "./RenderEngine";
-import type EntityEngine from "./EntityEngine";
-import Player from "../entity/Player";
-import Enemy from "../entity/Enemy";
+import { container } from 'tsyringe';
+import type Engine from './Engine';
+import type EntityEngine from './EntityEngine';
+import Player from '@shared/class/entity/Player';
+import Enemy from '@shared/class/entity/Enemy';
 
 export default class Game {
 	private running: boolean = false;
-	private engines: Record<string,Engine> = {};
-	private renderEngine!: RenderEngine;
-	private entityEngine!: EntityEngine;
+	private engines: Record<string, Engine> = {};
+	protected entityEngine!: EntityEngine;
 
 	public addEngine(engine: Engine, name: string): void {
 		this.engines[name] = engine;
@@ -32,13 +30,8 @@ export default class Game {
 		});
 
 		this.entityEngine = container.resolve('entityEngine');
-		this.renderEngine = container.resolve('renderEngine');
 
 		console.log('Game Engine started');
-
-		this.renderEngine.onReady(() => {
-			this.init();
-		});
 	}
 
 	public init(): void {
@@ -49,11 +42,11 @@ export default class Game {
 		};
 	}
 
-	private spawnPlayer(): void {
+	protected spawnPlayer(): void {
 		this.entityEngine.spawnEntity(new Player(0, 0));
 	}
 
-	private spawnEnemy(x: number, y: number): void {
+	protected spawnEnemy(x: number, y: number): void {
 		this.entityEngine.spawnEntity(new Enemy(x, y));
 	}
 }

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import map from '../../assets/maps/map0.json';
-import Engine from './Engine';
+import Engine from '../../../shared/class/engine/Engine';
 import type RenderEngine from './RenderEngine';
 
 export default class BackgroundEngine extends Engine {
