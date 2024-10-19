@@ -32,7 +32,7 @@ export default class MapUtils {
 		return { x: gridX, y: gridY };
 	}
 	public static fromGridToMap(gridX: number, gridY: number): { x: number; y: number } {
-		const tileSize = map.tileSize; // Ensure that 'map' is accessible in this scope
+		const tileSize = map.tileSize;
 		const x = gridX * tileSize;
 		const y = gridY * tileSize;
 
