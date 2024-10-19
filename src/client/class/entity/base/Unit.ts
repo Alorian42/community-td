@@ -1,4 +1,4 @@
-import { AnimationMixer, Vector3, type Mesh, type AnimationActionLoopStyles } from "three";
+import { AnimationMixer, Vector3, type Mesh, type AnimationActionLoopStyles } from 'three';
 
 export default class Unit {
 	protected created: boolean = false;
@@ -27,11 +27,10 @@ export default class Unit {
 		this.mixer?.stopAllAction();
 		this.mesh.removeFromParent();
 	}
-	
+
 	public getMesh(): Mesh {
 		if (!this.created) {
 			this.create();
-			
 		}
 
 		return this.mesh;
@@ -39,10 +38,7 @@ export default class Unit {
 
 	public startMove(x: number, y: number, currentX: number, currentY: number): void {
 		const direction = new Vector3();
-		direction.subVectors(
-			new Vector3(x, 0, y),
-			new Vector3(currentX, 0, currentY)
-		); // Vector from current to target
+		direction.subVectors(new Vector3(x, 0, y), new Vector3(currentX, 0, currentY)); // Vector from current to target
 		direction.normalize(); // Normalize the vector to get just the direction\
 		const angle = Math.atan2(direction.x, direction.z);
 
@@ -51,12 +47,12 @@ export default class Unit {
 		this.playMoveAnimation();
 	}
 
-	public move(x: number, y: number, closeToTarget: boolean): void {
+	public move(x: number, y: number): void {
 		this.mesh.position.set(x, 0, y);
+	}
 
-		if (closeToTarget) {
-			this.stopMoveAnimation();
-		}
+	public stopMove(): void {
+		this.stopMoveAnimation();
 	}
 
 	public updateAnimation(delta: number): void {

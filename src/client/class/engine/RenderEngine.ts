@@ -19,12 +19,6 @@ export default class RenderEngine extends Engine {
 	private renderer!: THREE.WebGLRenderer;
 	private ambientLight!: THREE.AmbientLight;
 	private directionalLight!: THREE.DirectionalLight;
-	private sceneBorders = {
-		minX: -50,
-		maxX: 50,
-		minY: -50,
-		maxY: 50,
-	};
 
 	private cameraMove = {
 		forward: false,
@@ -90,6 +84,15 @@ export default class RenderEngine extends Engine {
 		window.addEventListener('wheel', (event: WheelEvent) => this.onZoom(event));
 		window.addEventListener('mousemove', (event: MouseEvent) => this.onMouseMove(event));
 
+		// reset camera position on player on space
+		window.addEventListener('keydown', (event: KeyboardEvent) => {
+			if (event.code === 'Space') {
+				const playerPosition = this.entityEngine.getPlayer().getPosition();
+				this.camera.lookAt(new THREE.Vector3(playerPosition.x, 0, playerPosition.y));
+				this.camera.updateProjectionMatrix();
+			}
+		});
+
 		this.renderer.domElement.addEventListener('contextmenu', event => {
 			event.preventDefault();
 
@@ -113,10 +116,8 @@ export default class RenderEngine extends Engine {
 			if (intersects && !isNaN(intersectionPoint.x) && !isNaN(intersectionPoint.z)) {
 				console.log(intersectionPoint.x, intersectionPoint.z); // Log valid coordinates
 
-				if (this.isInSceneBorders(intersectionPoint.x, intersectionPoint.z)) {
-					// Move player to the calculated position
-					this.entityEngine.movePlayer(intersectionPoint.x, intersectionPoint.z);
-				}
+				// Move player to the calculated position
+				this.entityEngine.movePlayer(intersectionPoint.x, intersectionPoint.z);
 			} else {
 				// Handle the case where no valid intersection occurs (e.g., parallel ray)
 				console.warn('No valid intersection or ray is parallel to the XZ plane.');
@@ -261,18 +262,5 @@ export default class RenderEngine extends Engine {
 
 	public getModel(name: string): any {
 		return this.models[name];
-	}
-
-	public getSceneBorders(): Record<string, number> {
-		return this.sceneBorders;
-	}
-
-	public isInSceneBorders(x: number, y: number): boolean {
-		return (
-			x >= this.sceneBorders.minX &&
-			x <= this.sceneBorders.maxX &&
-			y >= this.sceneBorders.minY &&
-			y <= this.sceneBorders.maxY
-		);
 	}
 }

@@ -1,4 +1,5 @@
 import { EventSystem } from '@shared/class/utils/EventSystem';
+import MapUtils from '../../utils/Map';
 
 export default abstract class Entity extends EventSystem {
 	protected created: boolean = false;
@@ -54,15 +55,23 @@ export default abstract class Entity extends EventSystem {
 			return;
 		}
 
-		this.x += this.currentSpeed.x * factor;
-		this.y += this.currentSpeed.y * factor;
+		const nextX = this.x + this.currentSpeed.x * factor;
+		const nextY = this.y + this.currentSpeed.y * factor;
 
-		if (this.closeToTarget()) {
+		if (this.closeToTarget() || !MapUtils.isInSceneBorders(nextX, nextY)) {
 			this.currentSpeed.x = 0;
 			this.currentSpeed.y = 0;
 
+			this.targetPosition.x = this.x;
+			this.targetPosition.y = this.y;
+
 			this.emit('stopMove');
+
+			return;
 		}
+
+		this.x = nextX;
+		this.y = nextY;
 		this.emit('move');
 	}
 

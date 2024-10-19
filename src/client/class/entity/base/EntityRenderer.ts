@@ -21,7 +21,11 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 		this.entity.on('move', () => {
 			const { x, y } = this.entity.getPosition();
 
-			this.unit.move(x, y, this.entity.closeToTarget());
+			this.unit.move(x, y);
+		});
+
+		this.entity.on('stopMove', () => {
+			this.unit.stopMove();
 		});
 	}
 

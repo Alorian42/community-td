@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Enemy from "@/client/class/entity/Enemy";
 import { container } from "tsyringe";
+import map from "@shared/assets/maps/map0.json";
 import type UnitEngine from "../class/engine/UnitEngine";
 
 const entityEngine = container.resolve("entityEngine") as UnitEngine;
@@ -13,8 +14,7 @@ const randomXY = (maxX: number, maxY: number) => {
 };
 
 const spawn = () => {
-  const { x, y } = randomXY(15, 15);
-  const enemy = Enemy.fromXY(x, y);
+  const enemy = Enemy.fromXY(map.spawnPoint.x, map.spawnPoint.y);
   entityEngine.spawnUnit(enemy);
 
   const { x: x2, y: y2 } = randomXY(100, 100);
