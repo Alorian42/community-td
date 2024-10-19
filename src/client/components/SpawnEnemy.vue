@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type EntityEngine from "@/class/engine/EntityEngine";
-import Enemy from "@/class/entity/Enemy";
+import type EntityEngine from "@/client/class/engine/EntityEngine";
+import Enemy from "@/client/class/entity/Enemy";
 import { container } from "tsyringe";
 
 const entityEngine = container.resolve("entityEngine") as EntityEngine;

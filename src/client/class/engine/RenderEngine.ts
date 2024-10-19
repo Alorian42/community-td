@@ -149,12 +149,12 @@ export default class RenderEngine extends Engine {
 	private async loadModels(): Promise<void> {
 		const loader = new GLTFLoader();
 		const modelsToLoad = {
-			player: 'src/assets/models/Skeleton Rogue.glb',
-			enemy: 'src/assets/models/Skeleton Minion.glb',
-			bft1: 'src/assets/models/Floor Dirt Small.glb',
-			gravestone1: 'src/assets/models/Gravestone.glb',
-			grave1: 'src/assets/models/Grave-1.glb',
-			tree1: 'src/assets/models/Dead tree.glb',
+			player: 'src/client/assets/models/Skeleton Rogue.glb',
+			enemy: 'src/client/assets/models/Skeleton Minion.glb',
+			bft1: 'src/client/assets/models/Floor Dirt Small.glb',
+			gravestone1: 'src/client/assets/models/Gravestone.glb',
+			grave1: 'src/client/assets/models/Grave-1.glb',
+			tree1: 'src/client/assets/models/Dead tree.glb',
 		};
 
 		// Load all models
