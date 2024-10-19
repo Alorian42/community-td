@@ -2,6 +2,7 @@ import type Entity from "../entity/base/Entity";
 import Engine from "./Engine";
 import type RenderEngine from "./RenderEngine";
 import Player from "../entity/Player";
+import type Unit from "../entity/base/Unit";
 
 export default class EntityEngine extends Engine {
 	private entities: Entity[] = [];
@@ -34,7 +35,7 @@ export default class EntityEngine extends Engine {
 
 	public spawnEntity(entity: Entity): void {
 		this.addEntity(entity);
-		this.renderEngine.renderEntity(entity);
+		this.renderEngine.renderEntity(entity as Unit);
 	}
 
 	public getPlayer(): Player {

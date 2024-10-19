@@ -138,7 +138,7 @@ export default class RenderEngine extends Engine {
 		this.renderMesh(entity.getMesh());
 	}
 
-	public renderMesh(mesh: THREE.Mesh): void {
+	public renderMesh(mesh: THREE.Object3D): void {
 		this.scene.add(mesh);
 	}
 

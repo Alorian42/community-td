@@ -80,7 +80,7 @@ export default abstract class Unit extends Entity {
 	}
 
 	private stopMoveAnimation(): void {
-		if (this.animation.move && this.mixer) {
+		if (this.animation.move && this.mixer && this.mixer.existingAction(this.animation.move)?.isRunning()) {
 			console.log('Stopping move animation');
 			this.mixer.clipAction(this.animation.move).stop();
 			this.mixer.clipAction(this.animation.idle).play();
