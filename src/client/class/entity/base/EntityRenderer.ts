@@ -17,6 +17,7 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 	protected unit: Unit;
 	protected hpBar: Mesh | null = null;
 	protected rangeCircle: Mesh | null = null;
+	protected showRangeCircle: boolean = false;
 	protected showHpBar: boolean = true;
 	protected animations = new Map<
 		string,
@@ -161,7 +162,7 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 
 	protected addRangeCircle(mesh: Object3D): void {
 		const range = this.entity.getRange() / this.scale;
-		if (!range) {
+		if (!range || !this.showRangeCircle) {
 			return;
 		}
 

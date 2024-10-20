@@ -51,7 +51,7 @@ export default class Unit {
 		this.playIdleAnimation();
 	}
 
-	public startAttack(x: number, y: numberr): void {
+	public startAttack(x: number, y: number): void {
 		this.faceDirection(x, y);
 
 		this.playAttackAnimation();
