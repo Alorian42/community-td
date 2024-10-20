@@ -1,7 +1,6 @@
 import EntityRenderer from './base/EntityRenderer';
 import Enemy from '@/shared/class/entity/Enemy';
 import Unit from './base/Unit';
-import { LoopRepeat } from 'three';
 
 export default class EnemyRenderer extends EntityRenderer<Enemy> {
 	protected modelName = 'enemy';

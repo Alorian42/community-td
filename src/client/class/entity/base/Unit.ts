@@ -83,26 +83,23 @@ export default class Unit {
 	}
 
 	private playMoveAnimation(): void {
-		if (this.animation.move && this.mixer && !this.mixer.existingAction(this.animation.move)) {
+		if (this.animation.move && this.mixer) {
 			this.mixer.stopAllAction();
-			this.mixer.clipAction(this.animation.move).reset().fadeIn(0.3).play();
-
-			this.mixer.existingAction(this.animation.idle)?.fadeOut(0.3);
-			this.mixer.existingAction(this.animation.attack)?.fadeOut(0.3);
+			this.mixer.clipAction(this.animation.move).play();
 		}
 	}
 
 	private playIdleAnimation(): void {
 		if (this.animation.idle && this.mixer) {
 			this.mixer.stopAllAction();
-			this.mixer.clipAction(this.animation.idle).reset().fadeIn(0.3).play();
+			this.mixer.clipAction(this.animation.idle).play();
 		}
 	}
 
 	private playAttackAnimation(): void {
 		if (this.animation.attack && this.mixer) {
 			this.mixer.stopAllAction();
-			this.mixer.clipAction(this.animation.attack).reset().fadeIn(0.3).play();
+			this.mixer.clipAction(this.animation.attack).play();
 		}
 	}
 }
