@@ -35,9 +35,7 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 		this.unit = unit;
 
 		this.entity.on('startMove', (args: { x: number; y: number }) => {
-			const { x: currentX, y: currentY } = this.entity.getPosition();
-
-			this.unit.startMove(args.x, args.y, currentX, currentY);
+			this.unit.startMove(args.x, args.y);
 		});
 
 		this.entity.on('move', () => {
@@ -50,11 +48,12 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 			this.unit.stopMove();
 		});
 
-		this.entity.on('startAttack', () => {
+		this.entity.on('startAttack', ({ x, y }: { x: number; y: number }) => {
 			if (!this.isAttackAnimationPlaying) {
-				console.log('starting attack');
-				this.unit.startAttack();
+				this.unit.startAttack(x, y);
 				this.isAttackAnimationPlaying = true;
+			} else {
+				this.unit.faceDirection(x, y);
 			}
 		});
 

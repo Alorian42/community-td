@@ -1,5 +1,7 @@
 import { EventSystem } from '@shared/class/utils/EventSystem';
 import MapUtils from '../../utils/Map';
+import MathUtils from '../../utils/Math';
+import type { Vector2Like } from 'three';
 
 export default abstract class Entity extends EventSystem {
 	protected id: number = MapUtils.getNextId();
@@ -54,7 +56,7 @@ export default abstract class Entity extends EventSystem {
 		this.targetPosition.x = x;
 		this.targetPosition.y = y;
 
-		const distance = Math.sqrt((x - this.x) * (x - this.x) + (y - this.y) * (y - this.y));
+		const distance = MathUtils.getDistance(this.x, this.y, x, y);
 		const time = distance / this.speed;
 		const speedX = (x - this.x) / time;
 		const speedY = (y - this.y) / time;
@@ -133,9 +135,12 @@ export default abstract class Entity extends EventSystem {
 		return this.baseAttackDamage;
 	}
 
-	public markAsNotReadyToAttack(): void {
+	public markAsNotReadyToAttack(targetPos: Vector2Like): void {
 		this.readyToAttack = false;
-		this.emit('startAttack');
+		this.emit('startAttack', {
+			x: targetPos.x,
+			y: targetPos.y,
+		});
 
 		setTimeout(() => {
 			this.readyToAttack = true;

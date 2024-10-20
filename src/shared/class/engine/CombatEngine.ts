@@ -18,8 +18,9 @@ export default class CombatEngine extends Engine {
 
 	private makeAttack(tower: Tower, target: Entity): void {
 		const damage = tower.getBaseAttackDamage();
+		const targetPos = target.getPosition();
 
-		tower.markAsNotReadyToAttack();
+		tower.markAsNotReadyToAttack(targetPos);
 		target.damageReceived(damage);
 	}
 

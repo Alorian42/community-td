@@ -1,3 +1,4 @@
+import MathUtils from '@/shared/class/utils/Math';
 import { AnimationMixer, Vector3, type Mesh, type AnimationActionLoopStyles } from 'three';
 
 export default class Unit {
@@ -36,13 +37,8 @@ export default class Unit {
 		return this.mesh;
 	}
 
-	public startMove(x: number, y: number, currentX: number, currentY: number): void {
-		const direction = new Vector3();
-		direction.subVectors(new Vector3(x, 0, y), new Vector3(currentX, 0, currentY));
-		direction.normalize();
-		const angle = Math.atan2(direction.x, direction.z);
-
-		this.mesh.children[0].rotation.y = angle;
+	public startMove(x: number, y: number): void {
+		this.faceDirection(x, y);
 
 		this.playMoveAnimation();
 	}
@@ -55,8 +51,16 @@ export default class Unit {
 		this.playIdleAnimation();
 	}
 
-	public startAttack(): void {
+	public startAttack(x: number, y: numberr): void {
+		this.faceDirection(x, y);
+
 		this.playAttackAnimation();
+	}
+
+	public faceDirection(x: number, y: number): void {
+		const angle = MathUtils.findAngle(x, y, this.mesh.position.x, this.mesh.position.z);
+
+		this.mesh.children[0].rotation.y = angle;
 	}
 
 	public stopAttack(): void {

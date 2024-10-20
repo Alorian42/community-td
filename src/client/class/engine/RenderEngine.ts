@@ -171,6 +171,7 @@ export default class RenderEngine extends Engine {
 			player: 'src/client/assets/models/Skeleton Rogue.glb',
 			enemy: 'src/client/assets/models/Skeleton Minion.glb',
 			tower: 'src/client/assets/models/Skeleton Warrior.glb',
+			towerWeapon: 'src/client/assets/models/Axe.glb',
 			bft1: 'src/client/assets/models/Floor Dirt Small.glb',
 			gravestone1: 'src/client/assets/models/Gravestone.glb',
 			grave1: 'src/client/assets/models/Grave-1.glb',
