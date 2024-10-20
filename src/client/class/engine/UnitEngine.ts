@@ -37,6 +37,8 @@ export default class UnitEngine extends EntityEngine {
 	}
 
 	public removeUnit(entity: EntityRenderer): void {
+		this.removeEntity(entity.getEntity());
+
 		const index = this.units.indexOf(entity);
 
 		if (index > -1) {

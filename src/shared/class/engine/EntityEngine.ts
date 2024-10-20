@@ -53,8 +53,6 @@ export default class EntityEngine extends Engine {
 	}
 
 	public movePlayer(x: number, y: number): void {
-		console.log(`Moving player to ${x}, ${y}`);
-
 		this.getPlayer().startMove(x, y);
 	}
 }

@@ -49,8 +49,4 @@ export default class EnemyEngine extends Engine {
 
 		return { x, y };
 	}
-
-	private getEnemies(): Enemy[] {
-		return this.entityEngine.getEntities().filter(entity => entity instanceof Enemy) as Enemy[];
-	}
 }

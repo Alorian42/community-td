@@ -26,6 +26,11 @@ export default class CombatEngine extends Engine {
 
 	public attackLoop(): void {
 		const towers = this.towerEngine.getReadyTowers();
+		const enemies = this.entityEngine.getEnemies();
+
+		if (towers.length === 0 || enemies.length === 0) {
+			return;
+		}
 
 		for (const tower of towers) {
 			const target = this.findTarget(tower);

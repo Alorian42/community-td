@@ -47,8 +47,6 @@ export default class TowerRenderer extends EntityRenderer<Tower> {
 		const handBoneName = 'handslotl'; // Replace with the actual bone name from your model
 		const handBone = skinnedMesh.skeleton.bones.find(bone => bone.name === handBoneName);
 
-		console.log(skinnedMesh.skeleton.bones.map(bone => bone.name));
-
 		if (handBone) {
 			// Attach the weapon model to the hand bone
 			handBone.add(weaponModel);

@@ -6,6 +6,7 @@ export default class Tower extends Entity {
 	protected baseAttackDamage = 5;
 
 	public override create(): void {
+		super.create();
 		this.maxLife = 1;
 		this.speed = 1;
 	}

@@ -49,6 +49,11 @@ export default abstract class Entity extends EventSystem {
 		this.emit('create');
 	}
 	public destroy(): void {
+		if (!this.created) {
+			return;
+		}
+
+		this.created = false;
 		this.emit('destroy');
 	}
 

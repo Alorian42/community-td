@@ -62,7 +62,6 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 
 			this.attackAnimationGraceTimer = setTimeout(
 				() => {
-					console.log('stopping attack');
 					this.unit.stopAttack();
 					this.isAttackAnimationPlaying = false;
 					this.attackAnimationGraceTimer = 0;
