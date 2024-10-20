@@ -1,5 +1,6 @@
 import Engine from '@/shared/class/engine/Engine';
 import type EntityEngine from '@/shared/class/engine/EntityEngine';
+import type CombatEngine from './CombatEngine';
 
 export default class SimulatorEngine extends Engine {
 	private fps: number = 30;
@@ -7,9 +8,11 @@ export default class SimulatorEngine extends Engine {
 	private intervalId: number | null = null;
 	private defaultTickRate: number = 1000 / this.fps;
 	private entityEngine!: EntityEngine;
+	private combatEngine!: CombatEngine;
 
 	public start(): void {
 		this.entityEngine = this.container.resolve('entityEngine');
+		this.combatEngine = this.container.resolve('combatEngine');
 
 		console.log('Simulator engine started.');
 		this.startLoop();
@@ -35,6 +38,7 @@ export default class SimulatorEngine extends Engine {
 		const factor = deltaTime / this.defaultTickRate;
 
 		this.moveEntities(factor);
+		this.combatEngine.attackLoop();
 
 		this.emitAsync('loop', factor);
 	}

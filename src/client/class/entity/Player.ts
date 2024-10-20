@@ -8,8 +8,8 @@ export default class PlayerRenderer extends EntityRenderer<Player> {
 	protected showHpBar = false;
 
 	protected override setupAnimations(): void {
-		this.animations.set('move', 'Running_A');
-		this.animations.set('idle', 'Idle');
+		this.addAnimation('move', 'Running_A');
+		this.addAnimation('idle', 'Idle');
 	}
 
 	public static fromXY(x: number, y: number): PlayerRenderer {

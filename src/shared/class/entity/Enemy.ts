@@ -5,9 +5,5 @@ export default class Enemy extends Entity {
 		this.maxLife = 100;
 		this.currentLife = this.maxLife;
 		this.speed = 1;
-
-		window.setTimeout(() => {
-			this.damageReceived(50);
-		}, 2000);
 	}
 }

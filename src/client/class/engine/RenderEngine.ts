@@ -4,6 +4,7 @@ import Engine from '../../../shared/class/engine/Engine';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader';
 import type EntityRenderer from '../entity/base/EntityRenderer';
 import type UnitEngine from './UnitEngine';
+import MapUtils from '@/shared/class/utils/Map';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -93,34 +94,28 @@ export default class RenderEngine extends Engine {
 			}
 		});
 
+		this.renderer.domElement.addEventListener('click', event => {
+			event.preventDefault();
+
+			const intersectionPoint = this.fromMouseToWorld(event);
+
+			if (!intersectionPoint) {
+				return;
+			}
+
+			const grid = MapUtils.fromMapToGrid(intersectionPoint.x, intersectionPoint.z);
+
+			this.emit('spawnTower', grid.x, grid.y);
+		});
+
 		this.renderer.domElement.addEventListener('contextmenu', event => {
 			event.preventDefault();
 
-			// Get normalized device coordinates (NDC) from the mouse position
-			const mouse = new THREE.Vector2(
-				(event.clientX / window.innerWidth) * 2 - 1, // X in NDC
-				-(event.clientY / window.innerHeight) * 2 + 1 // Y in NDC
-			);
+			const intersectionPoint = this.fromMouseToWorld(event);
 
-			// Create a raycaster for projecting from camera to the scene
-			this.raycaster.setFromCamera(mouse, this.camera);
-
-			// Define a plane at y = 0 (XZ plane)
-			const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0); // Up vector (0,1,0), at Y = 0
-
-			// Get the intersection point of the ray and the plane
-			const intersectionPoint = new THREE.Vector3();
-			const intersects = this.raycaster.ray.intersectPlane(plane, intersectionPoint);
-
-			// Check if the intersection is valid (not null and no NaN values)
-			if (intersects && !isNaN(intersectionPoint.x) && !isNaN(intersectionPoint.z)) {
-				console.log(intersectionPoint.x, intersectionPoint.z); // Log valid coordinates
-
+			if (intersectionPoint) {
 				// Move player to the calculated position
 				this.entityEngine.movePlayer(intersectionPoint.x, intersectionPoint.z);
-			} else {
-				// Handle the case where no valid intersection occurs (e.g., parallel ray)
-				console.warn('No valid intersection or ray is parallel to the XZ plane.');
 			}
 		});
 
@@ -133,6 +128,27 @@ export default class RenderEngine extends Engine {
 		document.querySelector('.ui')?.addEventListener('mouseleave', () => {
 			this.resumeCameraMove();
 		});
+	}
+
+	public fromMouseToWorld(event: MouseEvent): THREE.Vector3 | null {
+		const mouse = new THREE.Vector2(
+			(event.clientX / window.innerWidth) * 2 - 1, // X in NDC
+			-(event.clientY / window.innerHeight) * 2 + 1 // Y in NDC
+		);
+
+		this.raycaster.setFromCamera(mouse, this.camera);
+
+		const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+		const intersectionPoint = new THREE.Vector3();
+		const intersects = this.raycaster.ray.intersectPlane(plane, intersectionPoint);
+
+		if (intersects && !isNaN(intersectionPoint.x) && !isNaN(intersectionPoint.z)) {
+			return intersectionPoint;
+		}
+
+		console.error('No valid intersection or ray is parallel to the XZ plane.');
+
+		return null;
 	}
 
 	public renderEntity(entity: EntityRenderer): void {
@@ -154,6 +170,7 @@ export default class RenderEngine extends Engine {
 		const modelsToLoad = {
 			player: 'src/client/assets/models/Skeleton Rogue.glb',
 			enemy: 'src/client/assets/models/Skeleton Minion.glb',
+			tower: 'src/client/assets/models/Skeleton Warrior.glb',
 			bft1: 'src/client/assets/models/Floor Dirt Small.glb',
 			gravestone1: 'src/client/assets/models/Gravestone.glb',
 			grave1: 'src/client/assets/models/Grave-1.glb',
@@ -166,6 +183,7 @@ export default class RenderEngine extends Engine {
 				this.models[name] = await loader.loadAsync(path);
 			})
 		).then(() => {
+			console.log(this.models);
 			this.emit('ready');
 		});
 	}

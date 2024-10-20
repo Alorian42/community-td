@@ -1,15 +1,32 @@
 import type Entity from '@/shared/class/entity/base/Entity';
 import type Unit from './Unit';
 import { container } from 'tsyringe';
-import { LoopRepeat, Mesh, Object3D, PlaneGeometry, ShaderMaterial } from 'three';
+import {
+	LoopRepeat,
+	Mesh,
+	Object3D,
+	PlaneGeometry,
+	RingGeometry,
+	ShaderMaterial,
+	type AnimationActionLoopStyles,
+} from 'three';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 export default abstract class EntityRenderer<E extends Entity = Entity> {
 	protected entity: E;
 	protected unit: Unit;
 	protected hpBar: Mesh | null = null;
+	protected rangeCircle: Mesh | null = null;
 	protected showHpBar: boolean = true;
-	protected animations = new Map<string, string>();
+	protected animations = new Map<
+		string,
+		{
+			name: string;
+			mode: AnimationActionLoopStyles;
+		}
+	>();
+	protected isAttackAnimationPlaying: boolean = false;
+	protected attackAnimationGraceTimer: number = 0;
 	protected modelName: string = '';
 	protected scale: number = 1;
 
@@ -32,9 +49,35 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 		this.entity.on('stopMove', () => {
 			this.unit.stopMove();
 		});
+
+		this.entity.on('startAttack', () => {
+			if (!this.isAttackAnimationPlaying) {
+				console.log('starting attack');
+				this.unit.startAttack();
+				this.isAttackAnimationPlaying = true;
+			}
+		});
+
+		this.entity.on('stopAttack', () => {
+			clearTimeout(this.attackAnimationGraceTimer);
+
+			this.attackAnimationGraceTimer = setTimeout(
+				() => {
+					console.log('stopping attack');
+					this.unit.stopAttack();
+					this.isAttackAnimationPlaying = false;
+					this.attackAnimationGraceTimer = 0;
+				},
+				this.entity.getAttackSpeed() * 1000 + 100
+			);
+		});
 	}
 
 	protected abstract setupAnimations(): void;
+
+	protected addAnimation(name: string, animation: string, mode: AnimationActionLoopStyles = LoopRepeat): void {
+		this.animations.set(name, { name: animation, mode });
+	}
 
 	public getEntity(): E {
 		return this.entity;
@@ -73,17 +116,16 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 		this.animations.forEach((animation, name) => {
 			this.unit.setAnimation(
 				name,
-				model.animations.find((a: any) => a.name === animation),
-				LoopRepeat
+				model.animations.find((a: any) => a.name === animation.name),
+				animation.mode
 			);
 		});
 
 		this.addLifeBar(mesh);
+		this.addRangeCircle(mesh);
 
 		this.entity.on('damageReceived', (hpPercent: number) => {
 			this.updateHPBar(hpPercent);
-
-			console.log('Damage received', hpPercent);
 		});
 
 		this.unit.setMesh(mesh);
@@ -119,6 +161,28 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 		this.hpBar = hpBar;
 	}
 
+	protected addRangeCircle(mesh: Object3D): void {
+		const range = this.entity.getRange() / this.scale;
+		if (!range) {
+			return;
+		}
+
+		// Create a ring geometry to represent the range
+		const innerRadius = range * 0.95; // Slightly less than range for visual thickness
+		const outerRadius = range;
+
+		const geometry = new RingGeometry(innerRadius, outerRadius, 32);
+		const material = this.createRangeCircleMaterial();
+
+		this.rangeCircle = new Mesh(geometry, material);
+		this.rangeCircle.rotation.x = -Math.PI / 2;
+		this.rangeCircle.renderOrder = 1;
+		this.rangeCircle.userData.isRangeCircle = true;
+
+		this.rangeCircle.position.set(0, 0, 0); // At the unit's base
+		mesh.add(this.rangeCircle);
+	}
+
 	protected createHPBarMaterial(): ShaderMaterial {
 		return new ShaderMaterial({
 			uniforms: {
@@ -143,6 +207,29 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 					} else {
 						gl_FragColor = grayColor;
 					}
+				}`,
+			transparent: true,
+			depthTest: false,
+		});
+	}
+
+	protected createRangeCircleMaterial(): ShaderMaterial {
+		return new ShaderMaterial({
+			uniforms: {
+				opacity: { value: 0.5 },
+			},
+			vertexShader: `
+				varying vec2 vUv;
+				void main() {
+					vUv = uv;
+					gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+				}`,
+			fragmentShader: `
+				uniform float opacity;
+				varying vec2 vUv;
+				void main() {
+					vec4 color = vec4(0.0, 1.0, 0.0, opacity); // Green color
+					gl_FragColor = color;
 				}`,
 			transparent: true,
 			depthTest: false,

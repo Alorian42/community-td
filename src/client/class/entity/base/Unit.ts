@@ -38,8 +38,8 @@ export default class Unit {
 
 	public startMove(x: number, y: number, currentX: number, currentY: number): void {
 		const direction = new Vector3();
-		direction.subVectors(new Vector3(x, 0, y), new Vector3(currentX, 0, currentY)); // Vector from current to target
-		direction.normalize(); // Normalize the vector to get just the direction\
+		direction.subVectors(new Vector3(x, 0, y), new Vector3(currentX, 0, currentY));
+		direction.normalize();
 		const angle = Math.atan2(direction.x, direction.z);
 
 		this.mesh.children[0].rotation.y = angle;
@@ -52,7 +52,15 @@ export default class Unit {
 	}
 
 	public stopMove(): void {
-		this.stopMoveAnimation();
+		this.playIdleAnimation();
+	}
+
+	public startAttack(): void {
+		this.playAttackAnimation();
+	}
+
+	public stopAttack(): void {
+		this.playIdleAnimation();
 	}
 
 	public updateAnimation(delta: number): void {
@@ -75,18 +83,26 @@ export default class Unit {
 	}
 
 	private playMoveAnimation(): void {
-		if (this.animation.move && this.mixer) {
-			console.log('Playing move animation');
-			this.mixer.clipAction(this.animation.idle).stop();
-			this.mixer.clipAction(this.animation.move).play();
+		if (this.animation.move && this.mixer && !this.mixer.existingAction(this.animation.move)) {
+			this.mixer.stopAllAction();
+			this.mixer.clipAction(this.animation.move).reset().fadeIn(0.3).play();
+
+			this.mixer.existingAction(this.animation.idle)?.fadeOut(0.3);
+			this.mixer.existingAction(this.animation.attack)?.fadeOut(0.3);
 		}
 	}
 
-	private stopMoveAnimation(): void {
-		if (this.animation.move && this.mixer && this.mixer.existingAction(this.animation.move)?.isRunning()) {
-			console.log('Stopping move animation');
-			this.mixer.clipAction(this.animation.move).stop();
-			this.mixer.clipAction(this.animation.idle).play();
+	private playIdleAnimation(): void {
+		if (this.animation.idle && this.mixer) {
+			this.mixer.stopAllAction();
+			this.mixer.clipAction(this.animation.idle).reset().fadeIn(0.3).play();
+		}
+	}
+
+	private playAttackAnimation(): void {
+		if (this.animation.attack && this.mixer) {
+			this.mixer.stopAllAction();
+			this.mixer.clipAction(this.animation.attack).reset().fadeIn(0.3).play();
 		}
 	}
 }

@@ -36,6 +36,10 @@ export default class EntityEngine extends Engine {
 		return this.entities;
 	}
 
+	public getEnemies(): Enemy[] {
+		return this.entities.filter(entity => entity instanceof Enemy) as Enemy[];
+	}
+
 	public spawnEntity(entity: Entity): void {
 		this.addEntity(entity);
 

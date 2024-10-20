@@ -3,6 +3,7 @@ import type Engine from './Engine';
 import type EntityEngine from './EntityEngine';
 import Player from '@shared/class/entity/Player';
 import Enemy from '@shared/class/entity/Enemy';
+import Tower from '../entity/Tower';
 
 export default class Game {
 	private running: boolean = false;
@@ -48,5 +49,9 @@ export default class Game {
 
 	protected spawnEnemy(x: number, y: number): void {
 		this.entityEngine.spawnEntity(new Enemy(x, y));
+	}
+
+	protected spawnTower(x: number, y: number): void {
+		this.entityEngine.spawnEntity(new Tower(x, y));
 	}
 }

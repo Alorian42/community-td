@@ -4,7 +4,8 @@ import MapUtils from '../../utils/Map';
 export default abstract class Entity extends EventSystem {
 	protected id: number = MapUtils.getNextId();
 	protected created: boolean = false;
-	protected speed = 0;
+
+	// Movement
 	protected currentSpeed: {
 		x: number;
 		y: number;
@@ -12,6 +13,7 @@ export default abstract class Entity extends EventSystem {
 		x: 0,
 		y: 0,
 	};
+	protected speed = 0;
 	protected targetPosition: {
 		x: number;
 		y: number;
@@ -19,6 +21,17 @@ export default abstract class Entity extends EventSystem {
 		x: 0,
 		y: 0,
 	};
+
+	// Combat
+	protected baseAttackDamage = 0;
+	protected range = 0;
+	/**
+	 * Cooldown between attacks
+	 */
+	protected attackSpeed = 0;
+	protected readyToAttack = true;
+
+	// Life
 	protected maxLife: number = 1;
 	protected currentLife: number = 1;
 
@@ -102,6 +115,32 @@ export default abstract class Entity extends EventSystem {
 
 	public isAlive(): boolean {
 		return this.currentLife > 0;
+	}
+
+	public getRange(): number {
+		return this.range;
+	}
+
+	public getAttackSpeed(): number {
+		return this.attackSpeed;
+	}
+
+	public canAttack(): boolean {
+		return this.readyToAttack;
+	}
+
+	public getBaseAttackDamage(): number {
+		return this.baseAttackDamage;
+	}
+
+	public markAsNotReadyToAttack(): void {
+		this.readyToAttack = false;
+		this.emit('startAttack');
+
+		setTimeout(() => {
+			this.readyToAttack = true;
+			this.emit('stopAttack');
+		}, this.attackSpeed * 1000);
 	}
 
 	public lifePercentage(): number {
