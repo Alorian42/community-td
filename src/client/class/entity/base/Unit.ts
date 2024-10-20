@@ -42,7 +42,7 @@ export default class Unit {
 		direction.normalize(); // Normalize the vector to get just the direction\
 		const angle = Math.atan2(direction.x, direction.z);
 
-		this.mesh.rotation.y = angle;
+		this.mesh.children[0].rotation.y = angle;
 
 		this.playMoveAnimation();
 	}

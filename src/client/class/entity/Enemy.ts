@@ -3,15 +3,12 @@ import Enemy from '@/shared/class/entity/Enemy';
 import Unit from './base/Unit';
 
 export default class EnemyRenderer extends EntityRenderer<Enemy> {
-	public override create(): void {
-		const animations = new Map<string, string>();
+	protected modelName = 'enemy';
+	protected scale = 5;
 
-		animations.set('move', 'Running_A');
-		animations.set('idle', 'Idle_Combat');
-
-		this.init('enemy', 5, animations);
-
-		super.create();
+	protected override setupAnimations(): void {
+		this.animations.set('move', 'Running_A');
+		this.animations.set('idle', 'Idle_Combat');
 	}
 
 	public static fromXY(x: number, y: number): EnemyRenderer {

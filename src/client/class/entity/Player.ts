@@ -3,18 +3,14 @@ import EntityRenderer from './base/EntityRenderer';
 import Unit from './base/Unit';
 
 export default class PlayerRenderer extends EntityRenderer<Player> {
-	public override create(): void {
-		const animations = new Map<string, string>();
+	protected modelName = 'player';
+	protected scale = 5;
+	protected showHpBar = false;
 
-		animations.set('move', 'Running_A');
-		animations.set('idle', 'Idle');
-
-		this.init('player', 5, animations);
-
-		super.create();
+	protected override setupAnimations(): void {
+		this.animations.set('move', 'Running_A');
+		this.animations.set('idle', 'Idle');
 	}
-
-	public override addLifeBar(): void {}
 
 	public static fromXY(x: number, y: number): PlayerRenderer {
 		const enemy = new Player(x, y);

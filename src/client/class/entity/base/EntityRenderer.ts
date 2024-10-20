@@ -1,22 +1,17 @@
 import type Entity from '@/shared/class/entity/base/Entity';
 import type Unit from './Unit';
 import { container } from 'tsyringe';
-import {
-	Group,
-	LoopRepeat,
-	MathUtils,
-	Mesh,
-	MeshBasicMaterial,
-	Object3D,
-	PlaneGeometry,
-	ShaderMaterial,
-} from 'three';
+import { LoopRepeat, Mesh, Object3D, PlaneGeometry, ShaderMaterial } from 'three';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 export default abstract class EntityRenderer<E extends Entity = Entity> {
 	protected entity: E;
 	protected unit: Unit;
 	protected hpBar: Mesh | null = null;
+	protected showHpBar: boolean = true;
+	protected animations = new Map<string, string>();
+	protected modelName: string = '';
+	protected scale: number = 1;
 
 	constructor(entity: E, unit: Unit) {
 		this.entity = entity;
@@ -39,6 +34,8 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 		});
 	}
 
+	protected abstract setupAnimations(): void;
+
 	public getEntity(): E {
 		return this.entity;
 	}
@@ -52,6 +49,9 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 	}
 
 	public create(): void {
+		this.setupAnimations();
+		this.init();
+
 		this.unit.create();
 		this.entity.create();
 	}
@@ -61,16 +61,16 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 		this.entity.destroy();
 	}
 
-	protected init(modelName: string, scale: number, animations: Map<string, string>): void {
+	protected init(): void {
 		const renderEngine = container.resolve('renderEngine') as any;
-		const model = renderEngine.getModel(modelName);
+		const model = renderEngine.getModel(this.modelName);
 		const mesh = clone(model.scene) as any;
 		const position = this.entity.getPosition();
 
-		mesh.scale.set(scale, scale, scale);
+		mesh.scale.set(this.scale, this.scale, this.scale);
 		mesh.position.set(position.x, 0, position.y);
 
-		animations.forEach((animation, name) => {
+		this.animations.forEach((animation, name) => {
 			this.unit.setAnimation(
 				name,
 				model.animations.find((a: any) => a.name === animation),
@@ -99,6 +99,10 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 	}
 
 	protected addLifeBar(mesh: Object3D): void {
+		if (!this.showHpBar) {
+			return;
+		}
+
 		const barWidth = 2;
 		const barHeight = 0.2;
 
