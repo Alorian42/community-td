@@ -27,6 +27,7 @@ export default abstract class Entity extends EventSystem {
 	// Combat
 	protected baseAttackDamage = 0;
 	protected range = 0;
+	protected projectileSpeed = 0;
 	/**
 	 * Cooldown between attacks
 	 */
@@ -140,12 +141,13 @@ export default abstract class Entity extends EventSystem {
 		return this.baseAttackDamage;
 	}
 
-	public markAsNotReadyToAttack(targetPos: Vector2Like): void {
+	public getProjectileSpeed(): number {
+		return this.projectileSpeed;
+	}
+
+	public markAsNotReadyToAttack(target: Entity): void {
 		this.readyToAttack = false;
-		this.emit('startAttack', {
-			x: targetPos.x,
-			y: targetPos.y,
-		});
+		this.emit('startAttack', target);
 
 		setTimeout(() => {
 			this.readyToAttack = true;

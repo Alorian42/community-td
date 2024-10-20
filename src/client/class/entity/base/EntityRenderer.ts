@@ -2,15 +2,22 @@ import type Entity from '@/shared/class/entity/base/Entity';
 import type Unit from './Unit';
 import { container } from 'tsyringe';
 import {
+	BufferGeometry,
+	Float32BufferAttribute,
 	LoopRepeat,
 	Mesh,
 	Object3D,
 	PlaneGeometry,
+	Points,
+	PointsMaterial,
 	RingGeometry,
 	ShaderMaterial,
+	Vector3,
 	type AnimationActionLoopStyles,
 } from 'three';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
+import Projectile from './Projectile';
+import type RenderEngine from '../../engine/RenderEngine';
 
 export default abstract class EntityRenderer<E extends Entity = Entity> {
 	protected entity: E;
@@ -49,13 +56,17 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 			this.unit.stopMove();
 		});
 
-		this.entity.on('startAttack', ({ x, y }: { x: number; y: number }) => {
+		this.entity.on('startAttack', (target: Entity) => {
+			const { x, y } = target.getPosition();
+
 			if (!this.isAttackAnimationPlaying) {
 				this.unit.startAttack(x, y);
 				this.isAttackAnimationPlaying = true;
 			} else {
 				this.unit.faceDirection(x, y);
 			}
+
+			this.handleAttack(target);
 		});
 
 		this.entity.on('stopAttack', () => {
@@ -104,7 +115,7 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 	}
 
 	protected init(): void {
-		const renderEngine = container.resolve('renderEngine') as any;
+		const renderEngine = container.resolve('renderEngine') as RenderEngine;
 		const model = renderEngine.getModel(this.modelName);
 		const mesh = clone(model.scene) as any;
 		const position = this.entity.getPosition();
@@ -233,5 +244,49 @@ export default abstract class EntityRenderer<E extends Entity = Entity> {
 			transparent: true,
 			depthTest: false,
 		});
+	}
+
+	protected handleAttack(targetEntity: Entity): void {
+		const renderEngine = container.resolve('renderEngine') as RenderEngine;
+
+		// Create the projectile
+		const projectile = new Projectile(
+			this.getEntity(),
+			targetEntity,
+			this.getEntity().getProjectileSpeed(), // Speed units per second
+			() => {
+				const finalPos = targetEntity.getPosition();
+				this.createImpactEffect(new Vector3(finalPos.x, 0, finalPos.y));
+			}
+		);
+
+		// Add the projectile to the scene
+		renderEngine.renderProjectile(projectile);
+	}
+
+	private createImpactEffect(position: Vector3) {
+		const renderEngine = container.resolve('renderEngine') as RenderEngine;
+		// Simple impact effect using particles
+		const geometry = new BufferGeometry();
+		const vertices = [];
+
+		for (let i = 0; i < 100; i++) {
+			vertices.push(0, 0, 0); // Start at origin
+		}
+
+		geometry.setAttribute('position', new Float32BufferAttribute(vertices, 3));
+
+		const material = new PointsMaterial({
+			color: 0xffff00,
+			size: 0.05,
+			transparent: true,
+			opacity: 1.0,
+		});
+
+		const particles = new Points(geometry, material);
+		particles.scale.set(5, 5, 5);
+		particles.position.copy(position);
+
+		renderEngine.renderParticles(particles);
 	}
 }

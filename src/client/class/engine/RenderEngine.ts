@@ -5,6 +5,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader';
 import type EntityRenderer from '../entity/base/EntityRenderer';
 import type UnitEngine from './UnitEngine';
 import MapUtils from '@/shared/class/utils/Map';
+import type Projectile from '../entity/base/Projectile';
+import loadList from '@client/assets/models/load-list.json';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -37,6 +39,10 @@ export default class RenderEngine extends Engine {
 	private raycaster = new THREE.Raycaster();
 
 	private clock = new THREE.Clock();
+
+	private projectiles: Projectile[] = [];
+
+	private particles: THREE.Points[] = [];
 
 	public override start(): void {
 		this.entityEngine = this.container.resolve('entityEngine');
@@ -161,32 +167,83 @@ export default class RenderEngine extends Engine {
 		this.scene.add(mesh);
 	}
 
+	public renderProjectile(projectile: Projectile): void {
+		this.projectiles.push(projectile);
+
+		this.renderMesh(projectile.mesh);
+	}
+
+	public removeProjectile(projectile: Projectile): void {
+		const index = this.projectiles.indexOf(projectile);
+
+		if (index !== -1) {
+			this.projectiles.splice(index, 1);
+			this.removeMesh(projectile.mesh);
+		}
+	}
+
+	public removeMesh(mesh: THREE.Object3D): void {
+		this.scene.remove(mesh);
+	}
+
+	public renderParticles(particles: THREE.Points): void {
+		this.particles.push(particles);
+
+		this.renderMesh(particles);
+
+		const startTime = performance.now();
+		const animateParticles = () => {
+			const elapsed = (performance.now() - startTime) / 1000; // Seconds
+
+			if (elapsed < 1) {
+				requestAnimationFrame(animateParticles);
+				const positions = particles.geometry.attributes.position.array as Float32Array;
+
+				for (let i = 0; i < positions.length; i += 3) {
+					positions[i] += (Math.random() - 0.5) * 0.1;
+					positions[i + 1] += (Math.random() - 0.5) * 0.1;
+					positions[i + 2] += (Math.random() - 0.5) * 0.1;
+				}
+
+				particles.geometry.attributes.position.needsUpdate = true;
+				(particles.material as any).opacity = 1.0 - elapsed; // Fade out
+			} else {
+				this.removeMesh(particles);
+			}
+		};
+		animateParticles();
+	}
+
 	public onReady(callback: () => void): void {
 		this.on('ready', callback);
 	}
 
 	private async loadModels(): Promise<void> {
 		const loader = new GLTFLoader();
-		const modelsToLoad = {
-			player: 'src/client/assets/models/Skeleton Rogue.glb',
-			enemy: 'src/client/assets/models/Skeleton Minion.glb',
-			tower: 'src/client/assets/models/Skeleton Warrior.glb',
-			towerWeapon: 'src/client/assets/models/Axe.glb',
-			bft1: 'src/client/assets/models/Floor Dirt Small.glb',
-			gravestone1: 'src/client/assets/models/Gravestone.glb',
-			grave1: 'src/client/assets/models/Grave-1.glb',
-			tree1: 'src/client/assets/models/Dead tree.glb',
-		};
 
 		// Load all models
 		Promise.allSettled(
-			Object.entries(modelsToLoad).map(async ([name, path]) => {
+			Object.entries(loadList).map(async ([name, path]) => {
 				this.models[name] = await loader.loadAsync(path);
 			})
 		).then(() => {
 			console.log(this.models);
 			this.emit('ready');
 		});
+	}
+
+	private updateProjectiles(deltaTime: number): void {
+		const toRemove: Projectile[] = [];
+
+		for (let i = this.projectiles.length - 1; i >= 0; i--) {
+			const projectile = this.projectiles[i];
+			const reachedTarget = projectile.update(deltaTime);
+			if (reachedTarget) {
+				toRemove.push(projectile);
+			}
+		}
+
+		toRemove.forEach(projectile => this.removeProjectile(projectile));
 	}
 
 	private animate(time: DOMHighResTimeStamp): void {
@@ -203,6 +260,8 @@ export default class RenderEngine extends Engine {
 				object.quaternion.copy(this.camera.quaternion);
 			}
 		});
+
+		this.updateProjectiles(delta);
 
 		this.renderer.render(this.scene, this.camera);
 	}

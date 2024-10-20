@@ -18,10 +18,17 @@ export default class CombatEngine extends Engine {
 
 	private makeAttack(tower: Tower, target: Entity): void {
 		const damage = tower.getBaseAttackDamage();
+		const towerPos = tower.getPosition();
 		const targetPos = target.getPosition();
+		const distance = MathUtils.getDistance(towerPos.x, towerPos.y, targetPos.x, targetPos.y);
+		const projSpeed = tower.getProjectileSpeed();
+		const time = distance / projSpeed;
 
-		tower.markAsNotReadyToAttack(targetPos);
-		target.damageReceived(damage);
+		tower.markAsNotReadyToAttack(target);
+
+		setTimeout(() => {
+			target.damageReceived(damage);
+		}, time * 1000);
 	}
 
 	public attackLoop(): void {

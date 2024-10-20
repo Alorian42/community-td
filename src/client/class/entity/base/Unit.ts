@@ -1,5 +1,5 @@
 import MathUtils from '@/shared/class/utils/Math';
-import { AnimationMixer, Vector3, type Mesh, type AnimationActionLoopStyles } from 'three';
+import { AnimationMixer, type Mesh, type AnimationActionLoopStyles } from 'three';
 
 export default class Unit {
 	protected created: boolean = false;
@@ -58,9 +58,7 @@ export default class Unit {
 	}
 
 	public faceDirection(x: number, y: number): void {
-		const angle = MathUtils.findAngle(x, y, this.mesh.position.x, this.mesh.position.z);
-
-		this.mesh.children[0].rotation.y = angle;
+		this.mesh.children[0].lookAt(x, 0, y);
 	}
 
 	public stopAttack(): void {
