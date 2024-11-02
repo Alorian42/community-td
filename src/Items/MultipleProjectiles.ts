@@ -1,7 +1,7 @@
 import AbstractItem from './Abstract';
 import Tower from '../Towers/Abstract';
 
-export default class MultipleProjectiles extends AbstractItem {
+export default class MultipleProjectilesGem extends AbstractItem {
 	constructor(x: number, y: number) {
 		super(x, y);
 	}

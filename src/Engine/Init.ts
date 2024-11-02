@@ -179,6 +179,9 @@ export default class InitEngine {
 						button.handle,
 						GetPlayerId(GetLocalPlayer()) === playerIndex
 					);
+					printDebugMessage(
+						`Finished wave for player ${playerIndex} ${this.waveEngine.isInProgress[playerIndex]}`
+					);
 					this.waveEngine.isInProgress[playerIndex] = false;
 				});
 
@@ -325,11 +328,14 @@ export default class InitEngine {
 	spawnWave(player: number, finishCallback: () => void): void {
 		const wave = this.waveEngine.generateWave(player);
 		const size = wave.length;
-		const timer = new Timer();
+		const timer = Timer.create();
 		const waveNumber = this.waveEngine.waves[player];
 		let counter = 0;
 
-		printDebugMessage(`Wave #${waveNumber}: ${size} mobs`); // @TODO show to player proper message
+		printDebugMessage(
+			`Wave #${waveNumber}: ${size} mobs for player${player}`
+		); // @TODO show to player proper message
+		this.waveEngine.isInProgress[player] = true;
 
 		timer.start(1, true, () => {
 			this.enemies.push(
@@ -338,6 +344,7 @@ export default class InitEngine {
 			counter++;
 
 			if (counter >= size) {
+				printDebugMessage(`Wave finished for player ${player}`);
 				timer.destroy();
 				finishCallback();
 			}
@@ -375,14 +382,24 @@ export default class InitEngine {
 		}
 		const builder = this.getBuilder(player);
 
-		// @TODO implement counter for same towers
+		// @TODO same towers will override each other
 		builder.unit.addAbility(i.tower.buildAbility);
 	}
 
 	waveFinished(player: number, wave: number): void {
-		const reward = RewardEngine.generateReward(wave);
+		const reward = RewardEngine.generateTowerReward(wave);
 		reward.forEach((tower) => {
 			this.inventoryEngine.addItem(player, { tower });
+		});
+
+		const gems = RewardEngine.generateGemReward(wave);
+		const builderX = this.builders[player].unit.x;
+		const builderY = this.builders[player].unit.y;
+		gems.forEach((gem: any) => {
+			const item = new gem(builderX, builderY);
+			this.items.push(item);
+
+			this.builders[player].unit.addItem(item.item);
 		});
 	}
 

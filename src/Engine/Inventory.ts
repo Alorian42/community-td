@@ -68,11 +68,15 @@ export default class InventoryEngine {
 		this.createInventory();
 
 		this.button = new InventoryButton((index) => {
-			BlzFrameSetVisible(
-				this.inventoryBack[index].handle,
-				!BlzFrameIsVisible(this.inventoryBack[index].handle)
-			);
+			this.toggle(index);
 		});
+	}
+
+	toggle(index: number): void {
+		BlzFrameSetVisible(
+			this.inventoryBack[index].handle,
+			!BlzFrameIsVisible(this.inventoryBack[index].handle)
+		);
 	}
 
 	createInventory(): void {
@@ -251,7 +255,6 @@ export default class InventoryEngine {
 		if (item.tower) {
 			this.initEngine.spawnTowerItem(player, item);
 			this.removeItem(player, index);
-			printDebugMessage(`player ${player}, item ${item.tower.icon}`);
 		}
 	}
 

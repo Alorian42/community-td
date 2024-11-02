@@ -1,6 +1,5 @@
 import { Item } from 'w3ts';
 import Tower from '../Towers/Abstract';
-import { printDebugMessage } from 'Utils/Debug';
 
 export default abstract class AbstractItem {
 	item!: Item;

@@ -51,8 +51,15 @@ export default class WaveEngine {
 		this.enemies = this.enemies.filter((item) => {
 			// @ts-ignore
 			item.enemies = item.enemies.filter((e) => e.unit);
-			printDebugMessage(`${item.enemies.length} ${item.isInProgress}`);
-			if (item.enemies.length === 0 && !item.isInProgress) {
+			if (
+				!this.isInProgress[item.player] &&
+				item.enemies.length === 0 &&
+				!item.isInProgress
+			) {
+				printDebugMessage(`${this.isInProgress[item.player]}`);
+				printDebugMessage(
+					`Wave ${item.wave} finished for player ${item.player}`
+				);
 				this.engine.waveFinished(item.player, item.wave);
 
 				return false;
