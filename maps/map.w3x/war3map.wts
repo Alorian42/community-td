@@ -1,0 +1,195 @@
+﻿STRING 1
+{
+Community TD
+}
+
+STRING 2
+{
+Any
+}
+
+STRING 3
+{
+Nondescript
+}
+
+STRING 4
+{
+Alorian
+}
+
+STRING 5
+{
+Player 1
+}
+
+STRING 6
+{
+Player 2
+}
+
+STRING 7
+{
+Player 3
+}
+
+STRING 8
+{
+Force 1
+}
+
+STRING 9
+{
+Force 2
+}
+
+STRING 10
+{
+Player 4
+}
+
+STRING 11
+{
+Player 12
+}
+
+STRING 12
+{
+Player 5
+}
+
+STRING 13
+{
+Player 6
+}
+
+STRING 14
+{
+Player 7
+}
+
+STRING 15
+{
+Player 8
+}
+
+STRING 16
+// Units: t001 (Tower), Name (Name)
+{
+Tower
+}
+
+STRING 17
+// Abilities: A000 (Inventory - 1), Name (Name)
+{
+Inventory - 1
+}
+
+STRING 18
+// Abilities: A001 (Inventory - 2), Name (Name)
+{
+Inventory - 2
+}
+
+STRING 19
+// Abilities: A002 (Inventory - 3), Name (Name)
+{
+Inventory - 3
+}
+
+STRING 20
+// Abilities: A003 (Inventory - 4), Name (Name)
+{
+Inventory - 4
+}
+
+STRING 21
+// Abilities: A004 (Inventory - 5), Name (Name)
+{
+Inventory - 5
+}
+
+STRING 22
+// Abilities: A005 (Inventory - 6), Name (Name)
+{
+Inventory - 6
+}
+
+STRING 23
+// Items: I000 (AddColdDamageAbility), Name (Name)
+{
+AddColdDamageAbility
+}
+
+STRING 25
+// Abilities: A007 (AddColdDamageGem), Name (Name)
+{
+AddColdDamageGem
+}
+
+STRING 26
+// Units: h000 (Skeleton Warrior), Name (Name)
+{
+Skeleton Warrior
+}
+
+STRING 27
+// Units: B001 (Builder), Name (Name)
+{
+Builder
+}
+
+STRING 28
+// Abilities: A006 (Build Tower), Name (Name)
+{
+Build Tower
+}
+
+STRING 30
+// Units: t002 (Advanced Tower), Name (Name)
+{
+Advanced Tower
+}
+
+STRING 31
+// Abilities: A008 (Build Advanced Tower), Name (Name)
+{
+Build Advanced Tower
+}
+
+STRING 32
+// Units: h001 (Skeleton Archer), Name (Name)
+{
+Skeleton Archer
+}
+
+STRING 33
+// Abilities: A008 (Build Advanced Tower), Tip (Tooltip - Normal)
+{
+Builds Advanced Tower
+}
+
+STRING 34
+// Abilities: A008 (Build Advanced Tower), Ubertip (Tooltip - Normal - Extended)
+{
+Builds Advanced Tower 2
+}
+
+STRING 35
+// Abilities: A009 (Multiple Projectiles), Name (Name)
+{
+Multiple Projectiles
+}
+
+STRING 36
+// Abilities: A009 (Multiple Projectiles), Tip (Tooltip - Normal)
+{
+Multiple Projectiles
+}
+
+STRING 38
+// Abilities: A009 (Multiple Projectiles), Ubertip (Tooltip - Normal - Extended)
+{
+Increases projectile count by 1.
+}
+
